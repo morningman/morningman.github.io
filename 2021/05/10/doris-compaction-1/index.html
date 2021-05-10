@@ -43,10 +43,10 @@
 <p>如果只有 Base Compaction，则每次增量数据都要和全量的基线数据合并，写放大问题会非常严重，并且每次 Compaction 都相当耗时。因此我们需要引入 Cumulative Compaction 来先对增量数据进行合并，当增量数据合并后的大小达到一定阈值后，再和基线数据合并。这里我们有一个比较通用的 Compaction 调优策略：</p>
 <p><code>在合理范围内，尽量减少 Base Compaction 操作。</code></p>
 <p>BC 和 CC 之间的分界线成为 Cumulative Point（CP），这是一个动态变化的版本号。比CP小的数据版本会只会触发 BC，而比CP大的数据版本，只会触发CC。</p>
-<img src="/2021/05/10/doris-compaction-1/cumulative_point.png" class="" width="1">
+<img src="/2021/05/10/doris-compaction-1/cumulative_point.png" class="" title="image1">
 
 <p>整个过程有点类似 2048 小游戏：只有合并后大小足够，才能继续和更大的数据版本合并。</p>
-<img src="/2021/05/10/doris-compaction-1/2048.png" class="" width="2">
+<img src="/2021/05/10/doris-compaction-1/2048.png" class="" title="image2">
 
 <h2 id="未完待续"><a href="#未完待续" class="headerlink" title="未完待续"></a>未完待续</h2><p>本文介绍了 Doris Compaction 的一些基础概念，在接下来的文章中，我们将详细介绍影响 Compaction 触发的参数，以及如何调整这些参数。</p>
 </div></article></div><div class="right-container"><div class="widget"><div id="arAnchorBar"></div></div></div></section></div><div class="right-menu"></div><div class="modal search-modal"><div class="input-field"><input type="text" id="search_input"><label for="search-input">搜索</label></div><div id="search_result" class="search-result"></div></div><div class="blog-overlay"></div><footer class="row"><div class="footer-con"><div class="paginator"><a href="/2021/05/06/hello-world/" title="Hello World" class="next">NEXT</a></div><a href="#comment" class="comment-anchor"></a><div id="vcomments"></div><script>new Valine({
