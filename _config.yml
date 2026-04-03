@@ -16,7 +16,11 @@ timezone: America/Los_Angeles
 
 title: Rayner's Notes # the main title
 
-tagline: Data, Systems, & Life # it will display as the subtitle
+tagline: |
+  Data, Systems, & Life
+  Apache Doris PMC Chair
+  doris.apache.org
+  velodb.io
 
 description: >- # used by seo meta and the atom feed
   The personal blog of Mingyu Chen (Rayner), featuring technical deep dives into data systems, open-source development, software architecture, and occasional personal musings.
