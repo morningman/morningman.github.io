@@ -5,7 +5,7 @@ categories: [Data Engineering, Apache Iceberg]
 tags: [iceberg, index, open format, big data, architecture]
 ---
 
-> The Apache Iceberg community is discussing "secondary indexes." This topic is far more complex than it appears on the surface. Adding an index is not a simple engineering problem of "how to store an index file." It requires deep thinking about how an open format should design an entire indexing ecosystem.
+> The [Apache Iceberg](https://iceberg.apache.org/) community is discussing "secondary indexes." This topic is far more complex than it appears on the surface. Adding an index is not a simple engineering problem of "how to store an index file." It requires deep thinking about how an open format should design an entire indexing ecosystem.
 
 ---
 
@@ -14,8 +14,8 @@ tags: [iceberg, index, open format, big data, architecture]
 If you are short on time, here are the core takeaways:
 
 *   **The goal is not a single index:** The primary task for the Iceberg community is to define a universal foundation. Developers are currently standardizing the index lifecycle, snapshot binding relationships, and the Catalog API.
-*   **The first candidate is mostly clear:** The Bloom filter skipping index (backed by Puffin) is the most likely candidate to land first. It requires zero changes to the write path and offers extremely clear correctness semantics.
-*   **More powerful indices are coming later:** The community is exploring B-Tree, full-text search, and even vector indices. These will likely rely on Materialized Views or independent native structures in the future.
+*   **The first candidate is mostly clear:** The [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) skipping index (backed by Puffin) is the most likely candidate to land first. It requires zero changes to the write path and offers extremely clear correctness semantics.
+*   **More powerful indices are coming later:** The community is exploring [B-Tree](https://en.wikipedia.org/wiki/B-tree), full-text search, and even vector indices. These will likely rely on Materialized Views or independent native structures in the future.
 *   **The real challenges lie in the deep waters:** The true technical disagreements are not about specific file formats. Instead, engineers are debating update timing (sync vs. async), metadata placement, and how to maintain open compatibility across multiple write engines.
 
 ---
@@ -27,7 +27,7 @@ Apache Iceberg already excels at data pruning. The format provides several mecha
 *   **Partition Pruning:** Queries only scan data files within matching partitions.
 *   **Manifest-Level Filtering:** Each manifest file records statistical summaries for all the data files it manages.
 *   **File-Level Statistics:** Every data file tracks minimum values, maximum values, and null counts for each column.
-*   **Format-Built-in Filtering:** Features like Parquet row-group statistics and ORC bloom filters also participate in filtering.
+*   **Format-Built-in Filtering:** Features like [Parquet](https://parquet.apache.org/) row-group statistics and [ORC](https://orc.apache.org/) bloom filters also participate in filtering.
 
 Together, these mechanisms help query engines eliminate massive amounts of irrelevant data before they even open a data file.
 
@@ -49,7 +49,7 @@ This creates the classic **Needle in a Haystack** problem.
 
 ### 1.2 The Rise of AI and Vector Search
 
-As RAG (Retrieval-Augmented Generation) and multimodal search workloads enter the data lake, queries looking for "the K most similar records to a given vector" are becoming increasingly common. Existing min/max statistics offer almost no help for vector retrieval.
+As [RAG (Retrieval-Augmented Generation)](https://en.wikipedia.org/wiki/Retrieval-augmented_generation) and multimodal search workloads enter the data lake, queries looking for "the K most similar records to a given vector" are becoming increasingly common. Existing min/max statistics offer almost no help for vector retrieval.
 
 ### 1.3 Read Amplification in Deletion Scenarios
 
@@ -67,7 +67,7 @@ This is the essence of the "index" concept.
 
 ## 2. Why Is "Adding an Index" So Hard?
 
-In traditional databases like MySQL or PostgreSQL, adding an index to a table is entirely natural. Why does introducing indexes to Iceberg spark endless discussions and require countless design trade-offs?
+In traditional databases like [MySQL](https://www.mysql.com/) or [PostgreSQL](https://www.postgresql.org/), adding an index to a table is entirely natural. Why does introducing indexes to Iceberg spark endless discussions and require countless design trade-offs?
 
 The core reason is this: **Iceberg is an open format, not a closed storage engine.**
 
@@ -75,7 +75,7 @@ The core reason is this: **Iceberg is an open format, not a closed storage engin
 
 In a traditional database, the database itself maintains the indexes. You write the data, the database updates the indexes synchronously, and the user never needs to worry about the underlying details.
 
-However, Iceberg relies on completely different engines (like Spark, Flink, Trino, and Dremio) to write data. If the Iceberg specification forced engines to synchronously update indexes during writes, several problems would arise:
+However, Iceberg relies on completely different engines (like [Spark](https://spark.apache.org/), [Doris](https://doris.apache.org/), [Trino](https://trino.io/), and [Dremio](https://www.dremio.com/)) to write data. If the Iceberg specification forced engines to synchronously update indexes during writes, several problems would arise:
 
 *   Every writer would need to implement the index update logic.
 *   Different engines might implement the same index type in drastically different ways.
@@ -206,7 +206,7 @@ If a covering index exists with `nationality` as the key and includes `user_id, 
 
 Unlike Bloom filters, this type of index does more work. It does not just tell the planner where to look; it **actively participates in answering the query.**
 
-In community discussions, developers will likely back this type of index using a **Materialized View**. Essentially, this means maintaining an extra Iceberg table optimized and sorted by the index key.
+In community discussions, developers will likely back this type of index using a **[Materialized View](https://en.wikipedia.org/wiki/Materialized_view)**. Essentially, this means maintaining an extra Iceberg table optimized and sorted by the index key.
 
 **Why it is not the top priority yet:**
 The implementation complexity for B-Tree/Covering indexes far exceeds Bloom filters. It involves redundant data storage, update maintenance, and query rewrite capabilities inside the engine itself. If an engine cannot recognize and rewrite a query to use the index path, the universal value of this index across different engines drops significantly.
@@ -246,7 +246,7 @@ Building a true full-text search system requires much more than maintaining a si
 
 ### 4.4 Vector Indexes (IVF / ANN): The Demand of the AI Era
 
-**What problem it solves:** This supports approximate nearest neighbor (ANN) search, helping Iceberg natively handle AI retrieval workloads.
+**What problem it solves:** This supports [approximate nearest neighbor (ANN)](https://en.wikipedia.org/wiki/Nearest_neighbor_search#Approximate_nearest_neighbor) search, helping Iceberg natively handle AI retrieval workloads.
 
 **How it works:**
 
