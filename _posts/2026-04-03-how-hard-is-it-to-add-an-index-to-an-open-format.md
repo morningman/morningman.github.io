@@ -1,5 +1,5 @@
 ---
-title: "How Hard Is It to Add an Index to an Open Format? Lessons from the Apache Iceberg Community"
+title: "How Hard Is It to Add an Index to an Open Format: Lessons from the Apache Iceberg Community"
 date: 2026-04-03 14:00:00 -0700
 categories: [Data Engineering, Apache Iceberg]
 tags: [iceberg, index, open format, big data, architecture]
