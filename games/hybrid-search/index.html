@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doris Hybrid Search · Find the perfect stay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet" />
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Tailwind CDN with custom design tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background:  '#f5efe0',
+            foreground:  '#1a1408',
+            ink:         '#1a1408',
+            card:        { DEFAULT: '#ffffff', foreground: '#1a1408' },
+            primary:     { DEFAULT: '#ecd050', foreground: '#1a1408' },
+            accent:      { DEFAULT: '#64c8b4', foreground: '#1a1408' },
+            highlight:   { DEFAULT: '#e86040', foreground: '#ffffff' },
+            muted:       { DEFAULT: '#f0e8d4', foreground: '#7a6a54' },
+            border:      '#1a1408',
+          },
+          fontFamily: {
+            display: ['"Fredoka"', 'sans-serif'],
+            sans:    ['"Nunito"', 'sans-serif'],
+            mono:    ['"JetBrains Mono"', 'monospace'],
+          },
+          borderRadius: {
+            DEFAULT: '1.25rem',
+            sm:   '0.5rem',
+            md:   '1rem',
+            lg:   '1.25rem',
+            xl:   '1.625rem',
+            '2xl':'2rem',
+            full: '9999px',
+          },
+          boxShadow: {
+            ink:    '4px 4px 0 0 #1a1408',
+            'ink-sm':'2px 2px 0 0 #1a1408',
+            'ink-lg':'6px 6px 0 0 #1a1408',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Cartoon design system + animations -->
+  <style type="text/tailwindcss">
+    @layer base {
+      *, *::before, *::after { box-sizing: border-box; }
+      html { overflow-x: hidden; scroll-behavior: smooth; }
+      body {
+        font-family: theme('fontFamily.sans');
+        font-weight: 600;
+        background-color: theme('colors.background');
+        color: theme('colors.foreground');
+        overflow-x: hidden;
+      }
+      section[id^="stage-"] { scroll-margin-top: 56px; }
+    }
+
+    @layer components {
+      /* Cards */
+      .cartoon-card {
+        @apply border-[3px] border-ink rounded-[1.25rem] bg-card;
+        box-shadow: 6px 6px 0 0 #1a1408;
+      }
+      .cartoon-card-sm {
+        @apply border-2 border-ink rounded-xl bg-card;
+        box-shadow: 3px 3px 0 0 #1a1408;
+      }
+      .cartoon-card-lift {
+        @apply transition-[transform,box-shadow] duration-150 ease-out;
+      }
+      .cartoon-card-lift:hover {
+        @apply -translate-x-0.5 -translate-y-0.5;
+        box-shadow: 8px 8px 0 0 #1a1408;
+      }
+
+      /* Buttons */
+      .cartoon-btn {
+        @apply font-display font-semibold border-[3px] border-ink rounded-full bg-primary
+               text-ink px-5 py-2.5 inline-flex items-center gap-2 cursor-pointer
+               transition-[transform,box-shadow] duration-[120ms] ease-out select-none;
+        box-shadow: 4px 4px 0 0 #1a1408;
+      }
+      .cartoon-btn:hover:not(:disabled) {
+        @apply -translate-x-px -translate-y-px;
+        box-shadow: 5px 5px 0 0 #1a1408;
+      }
+      .cartoon-btn:active:not(:disabled) {
+        @apply translate-x-0.5 translate-y-0.5;
+        box-shadow: 1px 1px 0 0 #1a1408;
+      }
+      .cartoon-btn:disabled { @apply opacity-50 cursor-not-allowed; box-shadow: 2px 2px 0 0 #1a1408; }
+      .cartoon-btn-ghost    { @apply bg-card text-foreground; }
+      .cartoon-btn-accent   { @apply bg-accent text-ink; }
+      .cartoon-btn-highlight { @apply bg-highlight text-white; }
+
+      /* Chips */
+      .cartoon-chip {
+        @apply font-display font-semibold border-2 border-ink rounded-full px-3 py-1
+               bg-card inline-flex items-center gap-1.5 text-[0.8rem];
+        box-shadow: 2px 2px 0 0 #1a1408;
+      }
+      .cartoon-chip-primary   { @apply bg-primary; }
+      .cartoon-chip-accent    { @apply bg-accent; }
+      .cartoon-chip-highlight { @apply bg-highlight text-white; }
+    }
+
+    @layer utilities {
+      .divide-ink\/80 > * + * { border-color: rgba(26,20,8,0.8); }
+    }
+  </style>
+
+  <!-- Keyframe animations (outside Tailwind layer) -->
+  <style>
+    @keyframes drift {
+      from { transform: translateY(0);    opacity: 0.55; }
+      50%  {                               opacity: 1;    }
+      to   { transform: translateY(-18px); opacity: 0.55; }
+    }
+    @keyframes bob {
+      0%,100% { transform: translateY(0) rotate(-1deg); }
+      50%     { transform: translateY(-6px) rotate(1deg); }
+    }
+    @keyframes pop {
+      0%   { transform: scale(0.7) rotate(-8deg); opacity: 0; }
+      60%  { transform: scale(1.08) rotate(6deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0);       opacity: 1; }
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes filterFade {
+      to { opacity: 0; transform: scale(0.85); }
+    }
+    @keyframes blockStay {
+      0%   { opacity: 0.7; transform: scale(1); }
+      50%  { opacity: 1;   transform: scale(1.06); filter: brightness(1.2); }
+      100% { opacity: 0.9; transform: scale(1); }
+    }
+    @keyframes crystallise {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes ctaAttention {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+        box-shadow: 4px 4px 0 0 #1a1408, 0 0 0 0 rgba(232,96,64,0);
+      }
+      50% {
+        transform: translate(-1px, -2px) scale(1.02);
+        box-shadow: 5px 6px 0 0 #1a1408, 0 0 0 7px rgba(232,96,64,0.22);
+      }
+    }
+    @keyframes ctaPulseRing {
+      0%, 100% {
+        box-shadow: 3px 3px 0 0 #1a1408, 0 0 0 0 rgba(232,96,64,0.35);
+      }
+      50% {
+        box-shadow: 3px 3px 0 0 #1a1408, 0 0 0 6px rgba(232,96,64,0);
+      }
+    }
+    .animate-drift         { animation: drift 3.2s ease-in-out infinite; }
+    .animate-block-stay    { animation: blockStay 600ms ease-in-out forwards; }
+    .animate-filter-fade   { animation: filterFade 600ms ease-in-out forwards; }
+    .animate-crystallise-in { animation: crystallise 600ms ease-out both; }
+    .animate-cta-attention  { animation: ctaAttention 1.6s ease-in-out infinite; }
+    .animate-cta-attention:hover { animation-play-state: paused; }
+    .animate-cta-ring       { animation: ctaPulseRing 1.8s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animate-drift, .animate-block-stay, .animate-filter-fade,
+      .animate-crystallise-in, .animate-pulse, .animate-bob,
+      .animate-cta-attention, .animate-cta-ring { animation: none !important; }
+      * { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 1. Data layer (plain JS) -->
+  <script src="game/data.js"></script>
+  <!-- 2. State management (plain JS, uses React globals) -->
+  <script src="game/state.js"></script>
+  <!-- 3. Shared UI components (JSX) -->
+  <script type="text/babel" src="game/ui.jsx"></script>
+  <!-- 4. Intro + Level 1 (JSX) -->
+  <script type="text/babel" src="game/stages.jsx"></script>
+  <!-- 5. Level 2 + Level 3 (JSX) -->
+  <script type="text/babel" src="game/levels.jsx"></script>
+  <!-- 6. Finish + Win Modal + Deep Dive (JSX) -->
+  <script type="text/babel" src="game/finish.jsx"></script>
+  <!-- 7. GameShell orchestrator (JSX) -->
+  <script type="text/babel" src="game/shell.jsx"></script>
+
+  <!-- Mount -->
+  <script type="text/babel">
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+      React.createElement(GameProvider, null,
+        React.createElement(GameShell)
+      )
+    );
+  </script>
+</body>
+</html>

@@ -218,6 +218,7 @@ exclude:
   - purgecss.js
   - "*.config.js"
   - "package*.json"
+  - games/hybrid-search/game
 
 jekyll-archives:
   enabled: [categories, tags]
