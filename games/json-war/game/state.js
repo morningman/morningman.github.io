@@ -11,6 +11,8 @@ function defaultState() {
     showVictory: false,     // triggers VictoryModal overlay
     unlockedSkills: [],
     deepDiveScreen: 0,
+    deepDiveOrigin: 'settlement', // screen to return to from deepdive
+    replayNonce: 0,         // bumped on REPLAY_LEVEL to force BattleScene remount
   };
 }
 
@@ -63,8 +65,22 @@ function reducer(state, action) {
       return { ...state, screen: 'boss-intro', level: state.level + 1, showVictory: false };
     }
 
+    case 'REPLAY_LEVEL':
+      return { ...state, screen: 'boss-intro', showVictory: false, replayNonce: (state.replayNonce || 0) + 1 };
+
+    case 'GOTO_LEVEL':
+      return { ...state, screen: 'boss-intro', level: action.level, showVictory: false, replayNonce: (state.replayNonce || 0) + 1 };
+
     case 'SHOW_DEEPDIVE':
-      return { ...state, screen: 'deepdive', deepDiveScreen: 0 };
+      return {
+        ...state,
+        screen: 'deepdive',
+        deepDiveScreen: action.screen ?? 0,
+        deepDiveOrigin: action.from || state.screen,
+      };
+
+    case 'CLOSE_DEEPDIVE':
+      return { ...state, screen: state.deepDiveOrigin || 'settlement' };
 
     case 'DEEPDIVE_NAV':
       return { ...state, deepDiveScreen: Math.max(0, Math.min(4, state.deepDiveScreen + action.dir)) };

@@ -85,12 +85,13 @@ function BattleScene() {
     setTimeout(() => safe(() => { setBossShaking(false); setBossFlash(false); }), 200);
   }
 
-  function fireBullets(count, upgraded, miss = false) {
+  function fireBullets(count, upgraded, miss = false, blocked = false) {
     for (let i = 0; i < count; i++) {
       const id = `${Date.now()}-${i}`;
       setTimeout(() => {
-        safe(() => setBullets(b => [...b, { id, upgraded, miss }]));
-        setTimeout(() => safe(() => setBullets(b => b.filter(x => x.id !== id))), miss ? 650 : 480);
+        safe(() => setBullets(b => [...b, { id, upgraded, miss, blocked }]));
+        const lifetime = blocked ? 520 : miss ? 650 : 480;
+        setTimeout(() => safe(() => setBullets(b => b.filter(x => x.id !== id))), lifetime);
       }, i * 85);
     }
   }
@@ -108,9 +109,9 @@ function BattleScene() {
         if (idx >= 0) n[idx] = 0;
         return n;
       });
-      setBossHp(h => Math.max(0, h - 11));
+      setBossHp(h => Math.max(0, h - 5));
       setBossShaking(true); setBossFlash(true);
-      setDmg(11); setDmgKey(k => k+1);
+      setDmg(5); setDmgKey(k => k+1);
     });
     setTimeout(() => safe(() => { setBossShaking(false); setBossFlash(false); }), 200);
   }
@@ -126,38 +127,41 @@ function BattleScene() {
   }
 
   // ── Pre-upgrade volley effect (level-specific) ──────────────────────────────
-  // Returns true if this volley is a miss
+  // Returns true if this volley is a miss (flies past boss)
   function isMissVolley(volleyIndex) {
-    return (lvl.bossType === 'phantom'      && volleyIndex < 2) ||
-           (lvl.bossType === 'shapeshifter' && volleyIndex < 2);
+    return lvl.bossType === 'phantom' && volleyIndex < 2;
+  }
+  // Returns true if this volley is blocked by a shield (stops at shield)
+  function isBlockedVolley(volleyIndex) {
+    return lvl.bossType === 'shapeshifter' && volleyIndex < 2;
   }
 
   function preVolleyEffect(volleyIndex) {
     switch (lvl.bossType) {
       case 'giant':
         triggerHit(1);
-        showFloat('HIT!', '#ecd050');
+        showFloat('TOO BIG TO PARSE!', '#ecd050');
         break;
       case 'inflation':
         setInflation(i => Math.min(3, i+1));
-        showFloat('GROW!', '#ecd050');
+        showFloat('MORE COLUMNS!', '#ecd050');
         break;
       case 'phantom':
         if (volleyIndex === 2) { triggerHit(1); showFloat('HIT!', '#ecd050'); }
-        else { showFloat('MISS ✕', '#64c8b4'); }
+        else { showFloat('MISS — NO INDEX', '#64c8b4'); }
         break;
       case 'shapeshifter':
         setBossForm(f => (f+1)%3);
         if (volleyIndex === 2) { triggerHit(1); showFloat('HIT!', '#ecd050'); }
         else {
           setShowShield(true); setShieldKey(k => k+1);
-          showFloat('BLOCKED!', '#e86040');
-          setTimeout(() => safe(() => setShowShield(false)), 500);
+          showFloat('BLOCKED — TYPE MISMATCH', '#e86040');
+          setTimeout(() => safe(() => setShowShield(false)), 620);
         }
         break;
       case 'legion':
         destroyOneUnit();
-        showFloat('HIT!', '#ecd050');
+        showFloat('HIT — ONLY ONE', '#ecd050');
         break;
     }
   }
@@ -165,7 +169,7 @@ function BattleScene() {
   // ── Post-upgrade volley effect ──────────────────────────────────────────────
   function postVolleyEffect() {
     triggerHit(lvl.upgradedDamagePerVolley);
-    showFloat('HIT!', '#ecd050');
+    showFloat(lvl.upgradedHitLabel || 'HIT!', '#ecd050');
     if (lvl.bossType === 'inflation' && bossLocked) {
       setLockAnim(true);
       setTimeout(() => safe(() => setLockAnim(false)), 500);
@@ -179,7 +183,7 @@ function BattleScene() {
     const bulletCount = lvl.bossType === 'giant' ? 1 : 3;
 
     const doVolley = (vi, delay) => [
-      [delay, () => fireBullets(bulletCount, false, isMissVolley(vi))],
+      [delay, () => fireBullets(bulletCount, false, isMissVolley(vi), isBlockedVolley(vi))],
       [420,   () => preVolleyEffect(vi)],
     ];
 
@@ -248,8 +252,8 @@ function BattleScene() {
   // ── Button config ────────────────────────────────────────────────────────────
   const btnConfig = (() => {
     if (phase === 'idle')     return { text:'⚔  ATTACK', color:'#e86040', fn: handleAttack };
-    if (phase === 'hangar')   return { text:`⬆  UPGRADE — ${lvl.skill.name}`, color:'#64c8b4', fn: handleUpgrade };
-    if (phase === 'upgraded') return { text:`⚡  ${lvl.skill.label} — ATTACK!`, color:'#e86040', fn: handleFinalAttack };
+    if (phase === 'hangar')   return { text:'⬆  UPGRADE', color:'#64c8b4', fn: handleUpgrade, size:'md' };
+    if (phase === 'upgraded') return { text:'⚡  ATTACK', color:'#e86040', fn: handleFinalAttack, size:'md' };
     return null;
   })();
 
@@ -272,7 +276,7 @@ function BattleScene() {
         padding:'9px 16px 7px',
       }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
-          <span style={{ color:'#64c8b4', fontWeight:700, fontSize:13 }}>LEVEL {state.level} / 5</span>
+          <span style={{ color:'#64c8b4', fontWeight:700, fontSize:13 }}>BOSS {state.level} / 5</span>
           {hasUpgrade && <SkillChip icon={lvl.skill.icon} name={lvl.skill.name} />}
         </div>
         <BossHPBar hp={bossHp} maxHp={lvl.maxHp} bossName={lvl.bossName} />
@@ -308,8 +312,8 @@ function BattleScene() {
           {/* Float label (MISS / BLOCKED / GROW) */}
           {floatText && <FloatLabel text={floatText.text} color={floatText.color} id={floatText.key} />}
 
-          {/* Shield flash */}
-          {showShield && <ShieldFlash id={shieldKey} />}
+          {/* Shield flash (non-shapeshifter; shapeshifter's arc shield is rendered in the bullet overlay) */}
+          {showShield && lvl.bossType !== 'shapeshifter' && <ShieldFlash id={shieldKey} />}
         </div>
 
         {/* Explosion */}
@@ -342,19 +346,12 @@ function BattleScene() {
           </div>
         )}
 
-        {/* Hint text */}
-        {phase === 'idle' && (
-          <div style={{ color:'#ecd050', fontSize:11, fontWeight:600, opacity:0.55, marginTop:6, textAlign:'center' }}>
-            {lvl.bossType==='phantom'      ? 'Boss cloaked — 2 of 3 shots miss' :
-             lvl.bossType==='shapeshifter' ? 'Shifting form — 2 of 3 shots blocked' :
-             lvl.bossType==='inflation'    ? 'Hits make the boss grow — no HP damage' :
-             lvl.bossType==='legion'       ? '9 units — single target only' : ''}
-          </div>
-        )}
       </div>
 
       {/* ── Full-height bullet overlay (crosses boss area boundary) ── */}
       <div style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:35, overflow:'visible' }}>
+        {/* Shapeshifter arc shield — rendered here so its bottom:% aligns with bullet vh travel */}
+        {showShield && lvl.bossType === 'shapeshifter' && <ArcShield id={shieldKey} />}
         {bullets.map(b => (
           <div key={b.id} style={{
             position:'absolute', left:'50%', bottom:'23%',
@@ -363,9 +360,11 @@ function BattleScene() {
             background: b.upgraded ? '#ecd050' : '#64c8b4',
             borderRadius:4,
             boxShadow:`0 0 10px ${b.upgraded ? '#ecd050' : '#64c8b4'}`,
-            animation: b.miss
-              ? 'bulletFlyMiss 0.65s ease-out forwards'
-              : 'bulletFlyHit 0.5s ease-out forwards',
+            animation: b.blocked
+              ? 'bulletFlyBlocked 0.52s ease-out forwards'
+              : b.miss
+                ? 'bulletFlyMiss 0.65s ease-out forwards'
+                : 'bulletFlyHit 0.5s ease-out forwards',
           }}/>
         ))}
       </div>
@@ -435,8 +434,8 @@ function BattleScene() {
           padding:'13px 16px 15px',
           boxShadow:'0 -3px 0 #1a1408',
         }}>
-          <div style={{ color:'#64c8b4', fontWeight:700, fontSize:10, letterSpacing:'0.22em', marginBottom:10 }}>
-            ▣  HANGAR
+          <div style={{ color:'#64c8b4', fontWeight:700, fontSize:10, letterSpacing:'0.18em', marginBottom:10 }}>
+            ▣  HANGAR <span style={{ opacity:0.7, fontWeight:600 }}>({phase === 'upgraded' ? 'REPELLED — READY TO ATTACK' : 'REPELLED — UNDER REPAIR'})</span>
           </div>
           {phase === 'hangar' && (
             <div style={{ animation:'fadeSlideIn 0.4s ease-out' }}>
@@ -453,8 +452,18 @@ function BattleScene() {
                   </div>
                 </div>
               </div>
-              <div style={{ textAlign:'center', color:'#64c8b4', fontWeight:600, fontSize:12, opacity:0.8 }}>
-                Upgrade available: <strong>{lvl.skill.name}</strong>
+              <div style={{
+                textAlign:'center',
+                background:'rgba(100,200,180,0.12)',
+                border:'2px solid #64c8b4',
+                borderRadius:10,
+                padding:'8px 10px',
+                color:'#64c8b4', fontWeight:700, fontSize:13,
+              }}>
+                <div style={{ fontSize:10, letterSpacing:'0.18em', opacity:0.85, marginBottom:3 }}>UPGRADE AVAILABLE</div>
+                <div style={{ color:'#ecd050', fontWeight:800, fontSize:17, letterSpacing:'0.01em' }}>
+                  {lvl.skill.icon} {lvl.skill.name}
+                </div>
               </div>
             </div>
           )}
@@ -465,8 +474,10 @@ function BattleScene() {
           )}
           {phase === 'upgraded' && (
             <div style={{ textAlign:'center', padding:'4px 0' }}>
-              <div style={{ color:'#64c8b4', fontWeight:700, fontSize:14, marginBottom:3 }}>✓ {lvl.skill.name} equipped!</div>
-              <div style={{ color:'#ecd050', fontFamily:'Nunito,sans-serif', fontWeight:700, fontSize:12 }}>Weapon: {lvl.skill.label}</div>
+              <div style={{ color:'#64c8b4', fontWeight:700, fontSize:14, marginBottom:5 }}>✓ {lvl.skill.name} equipped!</div>
+              <div style={{ color:'#ecd050', fontFamily:'Nunito,sans-serif', fontWeight:600, fontSize:12, lineHeight:1.45, padding:'0 4px' }}>
+                {lvl.upgradeDesc}
+              </div>
             </div>
           )}
         </div>
@@ -475,18 +486,18 @@ function BattleScene() {
       {/* Button bar */}
       <div style={{
         position:'relative', zIndex:20, flexShrink:0,
-        padding:'13px 20px 30px',
+        padding:'13px 20px 18px',
         background:'rgba(8,6,20,0.95)',
         borderTop:'2px solid #1a1408',
-        display:'flex', justifyContent:'center', alignItems:'center',
-        minHeight:86,
+        display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center',
+        gap:10,
       }}>
         {btnConfig ? (
           <CartoonBtn
             onClick={btnConfig.fn}
             color={btnConfig.color}
-            size="lg"
-            style={{ width:'100%', maxWidth:340, justifyContent:'center', animation:'ctaAttention 1.5s ease-in-out infinite' }}>
+            size={btnConfig.size || 'lg'}
+            style={{ justifyContent:'center', animation:'ctaAttention 1.5s ease-in-out infinite' }}>
             {btnConfig.text}
           </CartoonBtn>
         ) : (
@@ -494,6 +505,20 @@ function BattleScene() {
             {phase==='upgrading' ? 'UPGRADING...' : 'ENGAGING...'}
           </div>
         )}
+        <button
+          onClick={() => dispatch({ type: 'SHOW_DEEPDIVE', screen: state.level - 1 })}
+          style={{
+            fontFamily:'Fredoka,sans-serif', fontWeight:700, fontSize:12,
+            color:'#64c8b4', background:'transparent',
+            border:'2px solid #64c8b4', borderRadius:999,
+            padding:'6px 18px', cursor:'pointer',
+            letterSpacing:'0.08em',
+            transition:'background 0.15s, color 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.background='rgba(100,200,180,0.12)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background='transparent'; }}>
+          🔬 SEE HOW DORIS DID IT
+        </button>
       </div>
     </div>
   );

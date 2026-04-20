@@ -225,7 +225,7 @@ function BossShapeshifter({ shaking, flash, form, locked }) {
       style={{ animation: shaking ? 'bossShake 0.15s ease-out' : 'none', filter: flash ? 'brightness(3)' : 'none', transition: 'filter 0.12s' }}>
       <rect x="30" y="0" width="100" height="18" rx="4" fill="#7a6a54" stroke="#1a1408" strokeWidth="1.5"/>
       <text x="80" y="13" textAnchor="middle" fontFamily="Fredoka,sans-serif" fontSize="10" fontWeight="700" fill={locked ? '#aaaaaa' : '#ecd050'} letterSpacing="2">
-        {locked ? 'LOCKED' : ['SWORD','SHIELD','BALL'][f]+' FORM'}
+        {locked ? 'LOCKED' : ['INTEGER','STRING','FLOAT'][f]+' FORM'}
       </text>
       {f === 0 && (
         <g>
@@ -348,7 +348,9 @@ function FloatLabel({ text, color = '#e86040', id }) {
     <div style={{
       position:'absolute', top:'20%', left:'50%', transform:'translate(-50%,-50%)',
       pointerEvents:'none', zIndex:55,
-      fontFamily:'Fredoka,sans-serif', fontWeight:700, fontSize:26,
+      fontFamily:'Fredoka,sans-serif', fontWeight:700,
+      fontSize: text.length > 16 ? 15 : text.length > 8 ? 20 : 26,
+      whiteSpace:'nowrap',
       color, textShadow:'2px 2px 0 #1a1408',
       animation:'damageFloat 0.7s ease-in forwards',
     }}>
@@ -371,6 +373,43 @@ function ShieldFlash({ id }) {
       pointerEvents:'none', zIndex:52,
       animation:'shieldFlash 0.5s ease-out forwards',
     }}/>
+  );
+}
+
+// ── Arc Shield (type-mismatch block) ──────────────────────────────────────────
+// Positioned with bottom:% so it aligns with the bullet animation (vh-based).
+// Rendered in a viewport-sized overlay by the caller.
+function ArcShield({ id }) {
+  const [on, setOn] = useState(true);
+  useEffect(() => { const t = setTimeout(() => setOn(false), 620); return () => clearTimeout(t); }, [id]);
+  if (!on) return null;
+  return (
+    <div style={{
+      position:'absolute', bottom:'55%', left:'50%', marginLeft:-95,
+      width:190, height:64,
+      pointerEvents:'none', zIndex:52,
+      animation:'arcShieldFlash 0.6s ease-out forwards',
+      transformOrigin:'center center',
+    }}>
+      <div style={{ width:'100%', height:'100%', transform:'scaleY(-1)', transformOrigin:'center center' }}>
+        <svg width="190" height="64" viewBox="0 0 190 64" style={{ overflow:'visible' }}>
+          <defs>
+            <linearGradient id="arcShieldGrad" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stopColor="#ecd050" stopOpacity="0.55"/>
+              <stop offset="1" stopColor="#ecd050" stopOpacity="0.04"/>
+            </linearGradient>
+          </defs>
+          {/* Glow */}
+          <path d="M6,58 Q95,-8 184,58" fill="none" stroke="#ffe890" strokeWidth="12" opacity="0.22"/>
+          {/* Fill */}
+          <path d="M6,58 Q95,-8 184,58 L184,62 L6,62 Z" fill="url(#arcShieldGrad)"/>
+          {/* Arc */}
+          <path d="M6,58 Q95,-8 184,58" fill="none" stroke="#ecd050" strokeWidth="3.5" opacity="0.95"/>
+          {/* Hex pattern highlights */}
+          <path d="M50,36 Q95,4 140,36" fill="none" stroke="#ffffff" strokeWidth="1" opacity="0.35" strokeDasharray="3 5"/>
+        </svg>
+      </div>
+    </div>
   );
 }
 
@@ -445,6 +484,6 @@ function Explosion({ onDone }) {
 Object.assign(window, {
   Starfield, PlayerShip,
   BossGiant, BossInflation, BossPhantom, BossShapeshifter, BossLegion,
-  BossHPBar, DamagePopup, FloatLabel, ShieldFlash, CartoonBtn, SkillChip, Explosion,
+  BossHPBar, DamagePopup, FloatLabel, ShieldFlash, ArcShield, CartoonBtn, SkillChip, Explosion,
 });
 })();

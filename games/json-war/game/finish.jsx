@@ -17,6 +17,11 @@ function VictoryModal() {
     setTimeout(() => dispatch({ type: 'NEXT_LEVEL' }), 300);
   };
 
+  const handleReplay = () => {
+    setVisible(false);
+    setTimeout(() => dispatch({ type: 'REPLAY_LEVEL' }), 300);
+  };
+
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 100,
@@ -55,7 +60,15 @@ function VictoryModal() {
           <span style={{ fontSize: 28 }}>{lvl.skill.icon}</span>
           <div>
             <div style={{ color: '#64c8b4', fontWeight: 700, fontSize: 11, letterSpacing: '0.15em' }}>SKILL ACQUIRED</div>
-            <div style={{ color: '#ffffff', fontWeight: 700, fontSize: 18 }}>{lvl.skill.name}</div>
+            <div style={{ color: '#ffffff', fontWeight: 700, fontSize: 18, lineHeight: 1.2 }}>
+              {lvl.skill.name.includes(' & ')
+                ? <>
+                    {lvl.skill.name.split(' & ')[0]} &
+                    <br/>
+                    {lvl.skill.name.split(' & ')[1]}
+                  </>
+                : lvl.skill.name}
+            </div>
           </div>
         </div>
 
@@ -81,10 +94,20 @@ function VictoryModal() {
         </div>
 
         {/* Next level / victory button */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 24 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', marginTop: 24 }}>
           <CartoonBtn onClick={handleNext} color="#ecd050" size="lg" style={{ width: '100%', justifyContent: 'center' }}>
             {state.level >= 5 ? '🏆 VICTORY!' : 'NEXT LEVEL →'}
           </CartoonBtn>
+          <button
+            onClick={handleReplay}
+            style={{
+              fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 13,
+              color: '#64c8b4', background: 'transparent', border: '2px solid #64c8b4',
+              borderRadius: 999, padding: '8px 24px', cursor: 'pointer',
+              letterSpacing: '0.1em',
+            }}>
+            ↻ REPLAY LEVEL
+          </button>
         </div>
       </div>
     </div>
@@ -189,6 +212,38 @@ function SettlementPage() {
             style={{ width: '100%', maxWidth: 340, justifyContent: 'center', animation: 'ctaAttention 1.5s ease-in-out infinite' }}>
             🔬 SEE HOW DORIS DID IT
           </CartoonBtn>
+
+          {/* Level picker */}
+          <div style={{ width: '100%', maxWidth: 340, marginTop: 4 }}>
+            <div style={{ color: '#7a6a54', fontWeight: 700, fontSize: 11, letterSpacing: '0.15em', marginBottom: 8, textAlign: 'center' }}>
+              REPLAY A LEVEL
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+              {LEVELS.map((lv, i) => (
+                <button
+                  key={lv.id}
+                  onClick={() => dispatch({ type: 'GOTO_LEVEL', level: lv.id })}
+                  title={lv.bossName}
+                  style={{
+                    flex: 1,
+                    fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 18,
+                    color: '#1a1408', background: '#64c8b4',
+                    border: '2px solid #1a1408', borderRadius: 12,
+                    padding: '10px 0', cursor: 'pointer',
+                    boxShadow: '3px 3px 0 #1a1408',
+                    transition: 'transform 0.15s, box-shadow 0.15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.transform='translate(-1px,-1px)'; e.currentTarget.style.boxShadow='4px 4px 0 #1a1408'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='3px 3px 0 #1a1408'; }}
+                  onMouseDown={e => { e.currentTarget.style.transform='translate(1px,1px)'; e.currentTarget.style.boxShadow='1px 1px 0 #1a1408'; }}
+                  onMouseUp={e => { e.currentTarget.style.transform='translate(-1px,-1px)'; e.currentTarget.style.boxShadow='4px 4px 0 #1a1408'; }}
+                >
+                  {lv.id}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <button
             onClick={() => dispatch({ type: 'PLAY_AGAIN' })}
             style={{
@@ -362,7 +417,7 @@ function DeepDive() {
         padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 30,
       }}>
-        <button onClick={() => dispatch({ type: 'PLAY_AGAIN' })} style={{
+        <button onClick={() => dispatch({ type: 'CLOSE_DEEPDIVE' })} style={{
           background: 'none', border: 'none', color: '#7a6a54', cursor: 'pointer',
           fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 14,
         }}>← Back</button>
