@@ -4,6 +4,7 @@ const DORIS_LINK  = 'https://doris.apache.org';
 const DOWNLOAD_LINK = 'https://doris.apache.org/download';
 const VELODB_LINK   = 'https://velodb.cloud/signup';
 const SLACK_LINK    = 'https://doris.apache.org/slack';
+const GITHUB_LINK   = 'https://github.com/apache/doris';
 
 // ── Finish ──
 function Finish() {
@@ -355,22 +356,35 @@ function DeepDive() {
           </a>
         </div>
 
-        {/* Slack community CTA */}
+        {/* GitHub Star + Slack community CTAs — side by side */}
         <div className="mt-3 border-t-[2px] border-background/20 pt-3">
           <p className="mb-2 text-[11px] font-semibold leading-relaxed text-background/70">
-            Stuck, curious, or want to chat hybrid search? Join the Doris community on Slack.
+            Enjoyed the demo? Star Apache Doris on GitHub or join the community on Slack.
           </p>
-          <a href={SLACK_LINK} target="_blank" rel="noopener noreferrer"
-            className="group flex items-center justify-between gap-2 rounded-xl border-[2px] border-background bg-accent px-3 py-2.5 text-ink transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5">
-            <div className="flex min-w-0 items-center gap-2">
-              <Icon name="hash" size={18} strokeWidth={2.8} className="shrink-0" />
-              <div className="min-w-0">
-                <div className="font-display text-[13px] font-bold leading-none">Join Doris Slack</div>
-                <div className="mt-1 truncate font-mono text-[10px] font-semibold text-ink/70">doris.apache.org/slack</div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <a href={GITHUB_LINK} target="_blank" rel="noopener noreferrer"
+              className="group flex items-center justify-between gap-2 rounded-xl border-[2px] border-background bg-primary px-3 py-2.5 text-ink animate-cta-attention transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5">
+              <div className="flex min-w-0 items-center gap-2">
+                <Icon name="github" size={18} strokeWidth={2.8} className="shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-display text-[13px] font-bold leading-none">⭐ Star on GitHub</div>
+                  <div className="mt-1 truncate font-mono text-[10px] font-semibold text-ink/70">github.com/apache/doris</div>
+                </div>
               </div>
-            </div>
-            <Icon name="externalLink" size={14} strokeWidth={2.8} className="shrink-0 text-ink/60 transition-colors group-hover:text-ink" />
-          </a>
+              <Icon name="externalLink" size={14} strokeWidth={2.8} className="shrink-0 text-ink/60 transition-colors group-hover:text-ink" />
+            </a>
+            <a href={SLACK_LINK} target="_blank" rel="noopener noreferrer"
+              className="group flex items-center justify-between gap-2 rounded-xl border-[2px] border-background bg-accent px-3 py-2.5 text-ink transition-transform hover:-translate-y-0.5 hover:-translate-x-0.5">
+              <div className="flex min-w-0 items-center gap-2">
+                <Icon name="hash" size={18} strokeWidth={2.8} className="shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-display text-[13px] font-bold leading-none">Join Doris Slack</div>
+                  <div className="mt-1 truncate font-mono text-[10px] font-semibold text-ink/70">doris.apache.org/slack</div>
+                </div>
+              </div>
+              <Icon name="externalLink" size={14} strokeWidth={2.8} className="shrink-0 text-ink/60 transition-colors group-hover:text-ink" />
+            </a>
+          </div>
         </div>
       </div>
     </section>
