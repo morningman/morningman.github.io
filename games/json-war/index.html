@@ -18,11 +18,11 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      height: 100%; width: 100%;
+      min-height: 100%; width: 100%;
       background: #0a0818;
       color: #f5efe0;
       font-family: 'Fredoka', sans-serif;
-      overflow: hidden;
+      overflow-x: hidden;
       /* Mobile portrait only */
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
@@ -30,11 +30,10 @@
     }
 
     #root {
-      height: 100svh;
+      min-height: 100svh;
       max-width: 430px;
       margin: 0 auto;
       position: relative;
-      overflow: hidden;
     }
 
     /* ── Keyframes ─────────────────────────────────────────────────────── */

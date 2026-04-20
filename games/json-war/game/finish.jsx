@@ -388,6 +388,107 @@ const DIAGRAMS = {
   doc: DiagramDoc,
 };
 
+// ── External link dock ("Try it yourself") ──
+function DockIcon({ path, size = 18, stroke = '#1a1408', strokeWidth = 2.8, fill = 'none' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke}
+      strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+      {path}
+    </svg>
+  );
+}
+
+const ICON_DOWNLOAD = (<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>);
+const ICON_ROCKET   = (<><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>);
+const ICON_GITHUB   = (<><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></>);
+const ICON_HASH     = (<><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></>);
+const ICON_EXT      = (<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></>);
+
+function DockCard({ href, bg, fg, subFg, icon, label, sub }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+      background: bg, border: '2px solid #1a1408', borderRadius: 12,
+      padding: '10px 12px', textDecoration: 'none', minWidth: 0,
+      boxShadow: '2px 2px 0 0 #1a1408',
+      transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+    }}
+    onMouseEnter={e => {
+      e.currentTarget.style.transform = 'translate(-1px,-1px)';
+      e.currentTarget.style.boxShadow = '3px 3px 0 0 #1a1408';
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.transform = '';
+      e.currentTarget.style.boxShadow = '2px 2px 0 0 #1a1408';
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+        <DockIcon path={icon} stroke={fg} />
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 13, lineHeight: 1, color: fg }}>{label}</div>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontWeight: 600, fontSize: 10, color: subFg, marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sub}</div>
+        </div>
+      </div>
+      <DockIcon path={ICON_EXT} size={14} stroke={fg} strokeWidth={2.8} />
+    </a>
+  );
+}
+
+function ExternalDock({ downloadUrl, velodbUrl, githubUrl, slackUrl }) {
+  return (
+    <div style={{
+      background: '#f5efe0', border: '3px solid #1a1408', borderRadius: 16,
+      padding: 16, boxShadow: '4px 4px 0 0 #2a2040', marginTop: 24,
+    }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          width: 24, height: 24, borderRadius: 6, border: '2px solid #1a1408',
+          background: '#e86040', boxShadow: '1.5px 1.5px 0 0 #1a1408',
+        }}>
+          <DockIcon path={ICON_EXT} size={12} stroke="#ffffff" strokeWidth={3} />
+        </span>
+        <span style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 14, color: '#1a1408' }}>Try it yourself</span>
+        <span style={{ marginLeft: 'auto', fontFamily: 'Nunito, sans-serif', fontWeight: 700, fontSize: 10, letterSpacing: '0.15em', color: '#7a6a54', textTransform: 'uppercase' }}>external</span>
+      </div>
+
+      {/* Row 1: Doris download + VeloDB */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <DockCard
+          href={downloadUrl} bg="#ffffff" fg="#1a1408" subFg="#7a6a54"
+          icon={ICON_DOWNLOAD} label="Apache Doris" sub="doris.apache.org/download"
+        />
+        <DockCard
+          href={velodbUrl} bg="#e86040" fg="#ffffff" subFg="rgba(255,255,255,0.85)"
+          icon={ICON_ROCKET} label="VeloDB Free Trial" sub="velodb.cloud/signup"
+        />
+      </div>
+
+      {/* Divider + community blurb */}
+      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '2px solid rgba(26,20,8,0.15)' }}>
+        <p style={{
+          fontFamily: 'Nunito, sans-serif', fontWeight: 600, fontSize: 11,
+          lineHeight: 1.5, color: '#7a6a54', margin: '0 0 8px',
+        }}>
+          Enjoyed the demo? Star Apache Doris on GitHub or join the community on Slack.
+        </p>
+
+        {/* Row 2: GitHub + Slack */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <DockCard
+            href={githubUrl} bg="#ecd050" fg="#1a1408" subFg="rgba(26,20,8,0.7)"
+            icon={ICON_GITHUB} label="⭐ Star on GitHub" sub="github.com/apache/doris"
+          />
+          <DockCard
+            href={slackUrl} bg="#64c8b4" fg="#1a1408" subFg="rgba(26,20,8,0.7)"
+            icon={ICON_HASH} label="Join Doris Slack" sub="doris.apache.org/slack"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function DeepDive() {
   const { state, dispatch } = useGame();
   const screen = DEEPDIVE_SCREENS[state.deepDiveScreen];
@@ -399,12 +500,10 @@ function DeepDive() {
     setTimeout(() => setVisible(true), 50);
   }, [state.deepDiveScreen]);
 
-  const LINKS = [
-    { label: 'Apache Doris Download', url: 'https://doris.apache.org/download', color: '#ecd050' },
-    { label: 'VeloDB Free Trial', url: 'https://velodb.cloud/signup', color: '#e86040' },
-    { label: 'GitHub', url: 'https://github.com/apache/doris', color: '#ecd050' },
-    { label: 'Doris Slack', url: 'https://doris.apache.org/slack', color: '#64c8b4' },
-  ];
+  const DOWNLOAD_LINK = 'https://doris.apache.org/download';
+  const VELODB_LINK   = 'https://velodb.cloud/signup';
+  const GITHUB_LINK   = 'https://github.com/apache/doris';
+  const SLACK_LINK    = 'https://doris.apache.org/slack';
 
   return (
     <div style={{
@@ -507,25 +606,13 @@ function DeepDive() {
           )}
         </div>
 
-        {/* External links dock */}
-        <div style={{ borderTop: '2px solid #2a2040', paddingTop: 24 }}>
-          <div style={{ color: '#7a6a54', fontWeight: 700, fontSize: 11, letterSpacing: '0.15em', marginBottom: 14 }}>LEARN MORE</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {LINKS.map(link => (
-              <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer" style={{
-                background: 'rgba(20,16,40,0.9)', border: `2px solid ${link.color}`,
-                borderRadius: 10, padding: '12px', textDecoration: 'none',
-                display: 'block', boxShadow: `3px 3px 0 #1a1408`,
-                transition: 'transform 0.15s, box-shadow 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.transform='translate(-2px,-2px)'; e.currentTarget.style.boxShadow=`5px 5px 0 #1a1408`; }}
-              onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=`3px 3px 0 #1a1408`; }}>
-                <div style={{ color: link.color, fontWeight: 700, fontSize: 12, lineHeight: 1.3 }}>{link.label}</div>
-                <div style={{ color: '#7a6a54', fontFamily: 'Nunito, sans-serif', fontSize: 10, marginTop: 4 }}>↗ Open</div>
-              </a>
-            ))}
-          </div>
-        </div>
+        {/* External resource dock — "Try it yourself" */}
+        <ExternalDock
+          downloadUrl={DOWNLOAD_LINK}
+          velodbUrl={VELODB_LINK}
+          githubUrl={GITHUB_LINK}
+          slackUrl={SLACK_LINK}
+        />
       </div>
     </div>
   );
