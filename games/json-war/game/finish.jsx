@@ -453,7 +453,7 @@ function ExternalDock({ downloadUrl, velodbUrl, githubUrl, slackUrl }) {
       </div>
 
       {/* Row 1: Doris download + VeloDB */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
         <DockCard
           href={downloadUrl} bg="#ffffff" fg="#1a1408" subFg="#7a6a54"
           icon={ICON_DOWNLOAD} label="Apache Doris" sub="doris.apache.org/download"
@@ -474,7 +474,7 @@ function ExternalDock({ downloadUrl, velodbUrl, githubUrl, slackUrl }) {
         </p>
 
         {/* Row 2: GitHub + Slack */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
           <DockCard
             href={githubUrl} bg="#ecd050" fg="#1a1408" subFg="rgba(26,20,8,0.7)"
             icon={ICON_GITHUB} label="⭐ Star on GitHub" sub="github.com/apache/doris"
