@@ -13,14 +13,14 @@ permalink: /games/
   <div style="display:flex; flex-wrap:wrap; gap:2rem;">
     <div style="border:1px solid var(--border-color); border-radius:12px; padding:1.5rem; text-align:center; width:220px;">
       <a href="/games/hybrid-search/">
-        <img src="/assets/img/games/hybrid-search-qr.png" alt="Hybrid Search Game QR Code" width="180" style="display:block; margin:0 auto;" />
+        <img src="/assets/img/games/hybrid-search-qr.png" alt="Hybrid Search Game QR Code" width="180" height="180" style="display:block; margin:0 auto; width:180px; height:180px; max-width:180px;" />
       </a>
       <p style="font-weight:600; margin-top:1rem; margin-bottom:0.25rem;"><a href="/games/hybrid-search/">Hybrid Search Game</a></p>
       <p style="font-size:0.85rem; color:var(--text-muted-color);">Learn how Doris hybrid search works — interactive!</p>
     </div>
     <div style="border:1px solid var(--border-color); border-radius:12px; padding:1.5rem; text-align:center; width:220px;">
       <a href="/games/json-war/">
-        <img src="/assets/img/games/json-war-qr.png" alt="JSON War Game QR Code" width="180" style="display:block; margin:0 auto;" />
+        <img src="/assets/img/games/json-war-qr.png" alt="JSON War Game QR Code" width="180" height="180" style="display:block; margin:0 auto; width:180px; height:180px; max-width:180px;" />
       </a>
       <p style="font-weight:600; margin-top:1rem; margin-bottom:0.25rem;"><a href="/games/json-war/">JSON War Game</a></p>
       <p style="font-size:0.85rem; color:var(--text-muted-color);">Battle it out with Doris VARIANT — interactive!</p>
