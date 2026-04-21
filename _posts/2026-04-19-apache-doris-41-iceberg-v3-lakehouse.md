@@ -21,6 +21,12 @@ This post is about what changes when Doris can do more than read.
 
 If you want to skip the narrative and just try it, jump to [Quick Start](#quick-start-try-it-in-five-minutes).
 
+<iframe src="/assets/animations/doris-iceberg-v3/index.html"
+        style="width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; display: block; margin: 1.5em 0; background: #05080B;"
+        loading="lazy"
+        title="Apache Doris 4.1 × Iceberg V3 — 30s animation"
+        allowfullscreen></iframe>
+
 ## It's 3 AM and You Just Want to Compact Some Files
 
 A data engineer is in Doris, investigating odd values in an Iceberg table. Queries are fast. The problem is clear: a batch of rows under one dimension is wrong and needs fixing.
