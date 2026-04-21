@@ -39,9 +39,15 @@ Apache Doris 4.1 cuts both taxes in two ways. First, it fills out Iceberg's DML 
 
 Apache Doris is an MPP SQL engine. It started as a data warehouse, and over the last two major releases has shifted its center of gravity toward lakehouse workloads. Its role in the Iceberg ecosystem is specific: a real-time query layer for Iceberg.
 
+![Apache Doris 4.1 & Iceberg V3 Lakehouse Lifecycle: a single SQL engine handling Read (V3 DV/Pos Delete), Write (UPDATE/DELETE/MERGE INTO), DDL & Management, and Maintenance (rewrite, expire) on top of Iceberg V3 tables in object storage, with upstream CDC sources from PG/MySQL via Flink CDC.](/assets/img/posts/2026-04-19-apache-doris-41-iceberg-v3-lakehouse/doris-iceberg-arch.png)
+_Apache Doris 4.1 closes the full Iceberg V3 lakehouse lifecycle — read, write, manage, and maintain — inside one SQL engine._
+
+
 Spark remains the right tool for cross-source backfills at scale, long-running ETL, and the wider batch-and-stream ecosystem. We don't cover those, and we aren't trying to. Doris focuses on the adjacent workflow: once a query has brought you here, small edits, incremental reconciliation, and day-to-day maintenance shouldn't force you to leave.
 
-Hitting that bar takes more than fast reads. You need writes. You need DDL. You need maintenance procedures. You need diagnostics. Here is what Doris covers on Iceberg today:
+Hitting that bar takes more than fast reads. You need writes. You need DDL. You need maintenance procedures. You need diagnostics.
+
+Here is what Doris covers on Iceberg today:
 
 ```
 ┌─────────────┬──────────────────────────────────────────────────┐
@@ -119,6 +125,9 @@ Call these two costs by their names:
 Iceberg V3 addresses each debt with a distinct feature.
 
 ## Part One: Iceberg V3 Deletion Vectors Make DML Cheap
+
+![Iceberg V2 Position Deletes vs V3 Deletion Vector](/assets/img/posts/2026-04-19-apache-doris-41-iceberg-v3-lakehouse/iceberg-v2-v3.png)
+_DML storage debt: V2 accumulates one Position Delete parquet per commit (anti-join at read), while V3 collapses every edit into a single DV Puffin bitmap._
 
 ### File Layout Under V2
 
@@ -228,6 +237,9 @@ Large files are split across multiple read splits. Under V2, Position Delete fil
 | Speedup | **~3×** | **~3×** |
 
 ---
+
+![Doris on Iceberg V3 Deletion Vector performance](/assets/img/posts/2026-04-19-apache-doris-41-iceberg-v3-lakehouse/doris-iceberg-v3-perf.png)
+_Doris on Iceberg V3 vs V2 across delete ratios — V3's Deletion Vector keeps query latency flat while V2's Position Delete anti-join cost climbs._
 
 The pattern is consistent across all scenarios: Deletion Vectors eliminate the anti-join entirely. Query latency stays flat as the delete ratio grows, and storage for delete metadata drops by an order of magnitude.
 
@@ -394,6 +406,9 @@ After (V3 Row Lineage)
                       [Downstream table / view]
                      (consume only real changes)
 ```
+
+![Iceberg V3 Row Lineage hidden columns](/assets/img/posts/2026-04-19-apache-doris-41-iceberg-v3-lakehouse/iceberg-rowlineage.png)
+_Row Lineage attaches `_row_id` and `_last_updated_sequence_number` to every row — a stable identity that survives compaction and a watermark that only real DML moves._
 
 ### What Doris Implements for Row Lineage
 
