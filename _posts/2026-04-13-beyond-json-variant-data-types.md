@@ -21,6 +21,12 @@ Traditional analytics architectures rest on one assumption: data has a fixed sch
 
 Can we preserve JSON's flexibility, achieve columnar analytics performance, and natively store large semi-structured payloads all at the same time?
 
+<iframe src="/assets/animations/variant-data-types/index.html"
+        style="width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; display: block; margin: 1.5em 0; background: #06080B;"
+        loading="lazy"
+        title="Beyond JSON — Variant data types in 30 seconds"
+        allowfullscreen></iframe>
+
 ## An Elegant Idea
 
 The answer is **subcolumn extraction**.

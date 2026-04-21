@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyond JSON — The Variant Data Type · 30s Promo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@200;300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #06080B;
+      color: #F0EDE6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    #root { min-height: 100vh; }
+    .canvas * { -webkit-user-select: none; user-select: none; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- ─── Animation engine (inlined) ─────────────────────────────────── -->
+  <script type="text/babel">
+    (function() {
+      const { createContext, useContext, useState, useEffect, useRef, useCallback } = React;
+      const TimeContext = createContext({ time: 0, duration: 10, playing: false });
+      const SpriteContext = createContext(null);
+
+      const Easing = {
+        linear: t => t,
+        easeIn: t => t * t,
+        easeOut: t => 1 - (1 - t) * (1 - t),
+        easeInOut: t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2,
+        expoOut: t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t),
+        overshoot: t => {
+          const c1 = 1.70158, c3 = c1 + 1;
+          return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+        },
+      };
+
+      function interpolate(t, input, output, easing) {
+        const [inStart, inEnd] = input;
+        const [outStart, outEnd] = output;
+        if (t <= inStart) return outStart;
+        if (t >= inEnd) return outEnd;
+        let progress = (t - inStart) / (inEnd - inStart);
+        if (easing) progress = easing(progress);
+        return outStart + (outEnd - outStart) * progress;
+      }
+
+      function useTime() { return useContext(TimeContext).time; }
+      function useSprite() {
+        const s = useContext(SpriteContext);
+        return s || { t: 0, elapsed: 0, duration: 0 };
+      }
+
+      function Stage({ duration = 30, width = 1920, height = 1080, loop = true, bgColor = '#06080B', children }) {
+        const [time, setTime] = useState(0);
+        const [playing, setPlaying] = useState(true);
+        const [scale, setScale] = useState(1);
+        const rafRef = useRef(null);
+        const effectiveLoop = (typeof window !== 'undefined' && window.__recording) ? false : loop;
+
+        useEffect(() => {
+          function update() {
+            const vw = window.innerWidth, vh = window.innerHeight - 56;
+            setScale(Math.min(vw / width, vh / height));
+          }
+          update();
+          window.addEventListener('resize', update);
+          return () => window.removeEventListener('resize', update);
+        }, [width, height]);
+
+        useEffect(() => {
+          if (!playing) return;
+          let cancelled = false, last = null;
+          function tick(now) {
+            if (cancelled) return;
+            if (last === null) {
+              last = now;
+              if (typeof window !== 'undefined') window.__ready = true;
+            }
+            const delta = (now - last) / 1000;
+            last = now;
+            setTime(prev => {
+              const next = prev + delta;
+              if (next >= duration) return effectiveLoop ? 0 : duration - 0.001;
+              return next;
+            });
+            rafRef.current = requestAnimationFrame(tick);
+          }
+          const start = () => { if (!cancelled) rafRef.current = requestAnimationFrame(tick); };
+          if (document.fonts && document.fonts.ready) document.fonts.ready.then(start);
+          else start();
+          return () => { cancelled = true; cancelAnimationFrame(rafRef.current); };
+        }, [playing, duration, effectiveLoop]);
+
+        const handleSeek = useCallback((e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const ratio = (e.clientX - rect.left) / rect.width;
+          setTime(Math.max(0, Math.min(duration, ratio * duration)));
+          setPlaying(false);
+        }, [duration]);
+
+        const progress = time / duration;
+        const ctx = { time, duration, playing, setPlaying, setTime };
+
+        return (
+          <TimeContext.Provider value={ctx}>
+            <div style={{position:'fixed',inset:0,background:'#000',display:'flex',flexDirection:'column'}}>
+              <div style={{flex:1,position:'relative',overflow:'hidden'}}>
+                <div className="canvas" style={{
+                  position:'absolute', top:'50%', left:'50%',
+                  width, height, background: bgColor, overflow:'hidden',
+                  transformOrigin:'center', transform:`translate(-50%,-50%) scale(${scale})`
+                }}>
+                  {children}
+                </div>
+              </div>
+              <div style={{position:'fixed',bottom:0,left:0,right:0,background:'rgba(0,0,0,0.85)',padding:'12px 20px',display:'flex',alignItems:'center',gap:16,color:'#fff',fontSize:12,zIndex:100}}>
+                <button style={btnStyle} onClick={()=>setPlaying(p=>!p)}>{playing?'⏸':'▶'}</button>
+                <button style={btnStyle} onClick={()=>setTime(0)}>⏮</button>
+                <div style={{fontFamily:'JetBrains Mono, monospace',fontVariantNumeric:'tabular-nums',minWidth:90}}>{time.toFixed(2)}s / {duration.toFixed(2)}s</div>
+                <div style={{flex:1,height:4,background:'rgba(255,255,255,0.2)',borderRadius:2,position:'relative',cursor:'pointer'}} onMouseDown={handleSeek}>
+                  <div style={{position:'absolute',top:0,left:0,height:'100%',background:'#11A679',borderRadius:2,width:`${progress*100}%`,pointerEvents:'none'}}/>
+                  <div style={{position:'absolute',top:'50%',width:12,height:12,background:'#fff',borderRadius:'50%',transform:'translate(-50%,-50%)',left:`${progress*100}%`,pointerEvents:'none'}}/>
+                </div>
+              </div>
+            </div>
+          </TimeContext.Provider>
+        );
+      }
+
+      const btnStyle = {background:'none',border:'1px solid rgba(255,255,255,0.3)',color:'#fff',padding:'6px 14px',borderRadius:4,cursor:'pointer',fontSize:12};
+
+      function Sprite({ start = 0, end, children, style }) {
+        const { time } = useContext(TimeContext);
+        const actualEnd = end == null ? Infinity : end;
+        if (time < start || time >= actualEnd) return null;
+        const duration = actualEnd - start;
+        const elapsed = time - start;
+        const t = duration === 0 ? 1 : Math.max(0, Math.min(1, elapsed / duration));
+        return (
+          <SpriteContext.Provider value={{ t, elapsed, duration, start, end: actualEnd }}>
+            <div style={{ position:'absolute', inset:0, ...style }}>{children}</div>
+          </SpriteContext.Provider>
+        );
+      }
+
+      window.Animations = { Stage, Sprite, useTime, useSprite, Easing, interpolate };
+    })();
+  </script>
+
+  <!-- ─── Scenes ─────────────────────────────────────────────────────── -->
+  <script type="text/babel">
+    const { Stage, Sprite, useTime, useSprite, Easing, interpolate } = window.Animations;
+
+    // ─── Design tokens ───
+    const C = {
+      bg: '#06080B',
+      ink: '#F0EDE6',
+      mute: '#6E6960',
+      line: 'rgba(240,237,230,0.10)',
+      // Brand-true palette
+      doris: '#11A679',    // Apache Doris brand green (overall theme accent)
+      snowflake: '#29B5E8',// Snowflake brand sky-blue
+      parquet: '#E8A33D',  // Iceberg / Parquet warm amber
+      // Aliases for back-compat in scene code
+      amber: '#11A679',    // → routed to Doris green (overall accent)
+      blue: '#29B5E8',     // → Snowflake brand blue
+      mint: '#E8A33D',     // → Iceberg / Parquet amber
+      gold: '#C8B98A',
+    };
+    const F = {
+      display: "'Sora', 'Inter', sans-serif",
+      body: "'Inter', sans-serif",
+      mono: "'JetBrains Mono', ui-monospace, monospace",
+    };
+
+    // Generic fade-in helper
+    function FadeIn({ from = 0, to = 0.6, children, style }) {
+      const { t, duration } = useSprite();
+      const elapsed = t * duration;
+      const opacity = interpolate(elapsed, [from, to], [0, 1], Easing.expoOut);
+      return <div style={{ opacity, ...style }}>{children}</div>;
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // SCENE 1 · Hook (0 → 6.5s, fade out 5.5)
+    //   JSON snippets cascading down, then headline lands.
+    // ──────────────────────────────────────────────────────────────────
+    function Scene1Hook() {
+      const { t, duration } = useSprite();
+      const e = t * duration;
+      const exitT = interpolate(e, [5.5, 7.0], [1, 0], Easing.easeIn);
+
+      const snippets = [
+        '{"user_id": 12345, "event": "click"}',
+        '{"trace": {"agent": "search", "tool": "rag"}}',
+        '{"price": 29.99, "currency": "USD"}',
+        '{"messages": [{"role": "user", ...}]}',
+        '{"span_id": "a3f9", "duration_ms": 142}',
+        '{"props": {"page": "/home", "duration": 3.2}}',
+        '{"event": "purchase", "amount": 199}',
+        '{"agent_step": 7, "context": {...}}',
+        '{"req": {"id": "x91", "ts": "2026-04-13"}}',
+        '{"recall": [{"doc": 31, "score": 0.87}]}',
+        '{"llm": {"in": 1024, "out": 512}}',
+        '{"event": "page_view", "ref": null}',
+      ];
+
+      return (
+        <div style={{ position:'absolute', inset:0, opacity: exitT, background: C.bg, overflow:'hidden' }}>
+          {/* Cascading JSON */}
+          {snippets.map((s, i) => {
+            const lane = i;
+            const startTime = i * 0.18;
+            const yProgress = interpolate(e, [startTime, startTime + 4.5], [-100, 1180], Easing.linear);
+            const op = interpolate(e, [startTime, startTime + 0.4, startTime + 3.5, startTime + 4.5], [0, 0.45, 0.45, 0], Easing.linear);
+            const x = (lane * 167) % 1920 - 50 + ((lane * 53) % 90);
+            return (
+              <div key={i} style={{
+                position:'absolute', top: yProgress, left: x,
+                fontFamily: F.mono, fontSize: 13, color: C.gold,
+                opacity: op, whiteSpace:'nowrap', letterSpacing: '0.02em',
+              }}>{s}</div>
+            );
+          })}
+
+          {/* Vignette */}
+          <div style={{
+            position:'absolute', inset:0,
+            background:'radial-gradient(ellipse at center, rgba(6,8,11,0) 30%, rgba(6,8,11,0.85) 80%)',
+            pointerEvents:'none'
+          }}/>
+
+          {/* Headline */}
+          <Headline1 e={e} />
+        </div>
+      );
+    }
+
+    function Headline1({ e }) {
+      const op1 = interpolate(e, [1.6, 2.6], [0, 1], Easing.expoOut);
+      const op2 = interpolate(e, [2.8, 3.8], [0, 1], Easing.expoOut);
+      const ty1 = interpolate(e, [1.6, 2.6], [16, 0], Easing.expoOut);
+      const ty2 = interpolate(e, [2.8, 3.8], [16, 0], Easing.expoOut);
+
+      return (
+        <div style={{
+          position:'absolute', top:'50%', left:'50%',
+          transform:'translate(-50%,-50%)', textAlign:'center', width: 1400
+        }}>
+          <div style={{
+            opacity: op1, transform:`translateY(${ty1}px)`,
+            fontFamily: F.mono, fontSize: 20, color: C.amber,
+            letterSpacing:'0.32em', textTransform:'uppercase', marginBottom: 32,
+          }}>— On Modern Analytics —</div>
+          <div style={{
+            opacity: op2, transform:`translateY(${ty2}px)`,
+            fontFamily: F.display, fontSize: 108, fontWeight: 700,
+            color: C.ink, lineHeight: 1.05, letterSpacing:'-0.025em',
+          }}>
+            JSON is no longer a <span style={{fontWeight: 800, color: C.amber}}>supporting</span> format.
+          </div>
+          <div style={{
+            opacity: op2, transform:`translateY(${ty2}px)`,
+            fontFamily: F.display, fontSize: 108, fontWeight: 700,
+            color: C.ink, lineHeight: 1.05, letterSpacing:'-0.025em', marginTop: 8,
+          }}>
+            It is the <span style={{fontWeight: 800, color: C.amber}}>core data</span>.
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // SCENE 2 · Problem (5.5 → 11s)
+    //   Rigid schema table cracks under flexible JSON.
+    // ──────────────────────────────────────────────────────────────────
+    function Scene2Problem() {
+      const { t, duration } = useSprite();
+      const e = t * duration;
+      const enterT = interpolate(e, [0.0, 1.2], [0, 1], Easing.expoOut);
+      const exitT  = interpolate(e, [5.5, 7.0], [1, 0], Easing.easeIn);
+      const opacity = enterT * exitT;
+
+      // Crack progression
+      const crackP = interpolate(e, [1.8, 3.6], [0, 1], Easing.easeInOut);
+
+      const cols = ['user_id', 'event', 'ts', 'amount', 'page'];
+
+      return (
+        <div style={{position:'absolute', inset:0, opacity, background: C.bg}}>
+          {/* Left: rigid table schema */}
+          <div style={{position:'absolute', left: 180, top: 280, width: 720}}>
+            <div style={{fontFamily: F.mono, fontSize: 13, color: C.mute, letterSpacing:'0.2em', marginBottom: 24}}>
+              FIXED&nbsp;SCHEMA
+            </div>
+            <div style={{
+              border:`1px solid ${C.line}`,
+              borderRadius: 4, overflow:'hidden',
+              transform:`translateX(${-crackP * 140}px) rotate(${-crackP * 4}deg)`,
+              transition:'none',
+            }}>
+              {/* Header */}
+              <div style={{display:'flex', borderBottom:`1px solid ${C.line}`, background:'rgba(255,255,255,0.02)'}}>
+                {cols.map(c => (
+                  <div key={c} style={{
+                    flex:1, padding:'18px 14px', fontFamily: F.mono, fontSize: 14,
+                    color: C.ink, borderRight:`1px solid ${C.line}`,
+                  }}>{c}</div>
+                ))}
+              </div>
+              {/* Rows */}
+              {[0,1,2,3].map(r => (
+                <div key={r} style={{display:'flex', borderBottom: r === 3 ? 'none' : `1px solid ${C.line}`}}>
+                  {cols.map((c, i) => (
+                    <div key={c} style={{
+                      flex:1, padding:'18px 14px', fontFamily: F.mono, fontSize: 13,
+                      color: C.gold, borderRight:`1px solid ${C.line}`,
+                    }}>{['12345','click','10:00','—','/home'][i] || ''}</div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {/* Crack line */}
+            {crackP > 0.05 && (
+              <div style={{
+                position:'absolute', left: 360, top: 60, width: 3,
+                height: 280 * crackP, background: C.amber,
+                opacity: 0.9 * (1 - Math.max(0, (crackP - 0.85) / 0.15)),
+                transform:`translateX(${-crackP * 140}px) rotate(${-crackP * 4 + 6}deg)`,
+                transformOrigin:'top',
+                boxShadow:`0 0 24px ${C.amber}`,
+              }}/>
+            )}
+          </div>
+
+          {/* Right: incoming flexible JSON */}
+          <div style={{position:'absolute', right: 180, top: 240, width: 760}}>
+            <div style={{
+              fontFamily: F.mono, fontSize: 13, color: C.mute,
+              letterSpacing:'0.2em', marginBottom: 24, textAlign:'right'
+            }}>NESTED · EVOLVING · NULLABLE</div>
+            <div style={{
+              fontFamily: F.mono, fontSize: 18, color: C.ink, lineHeight: 1.7,
+              transform:`translateX(${(1 - enterT) * 60}px)`,
+            }}>
+              <div>{'{'}</div>
+              <div style={{paddingLeft: 28}}><span style={{color:C.gold}}>"user_id"</span>: <span style={{color: C.blue}}>12346</span>,</div>
+              <div style={{paddingLeft: 28}}><span style={{color:C.gold}}>"event"</span>: <span style={{color: C.mint}}>"purchase"</span>,</div>
+              <div style={{paddingLeft: 28}}><span style={{color:C.gold}}>"props"</span>: {'{'}</div>
+              <div style={{paddingLeft: 56}}><span style={{color:C.gold}}>"item"</span>: <span style={{color: C.mint}}>"widget"</span>,</div>
+              <div style={{paddingLeft: 56}}><span style={{color:C.gold}}>"amount"</span>: <span style={{color: C.blue}}>29.99</span>,</div>
+              <div style={{paddingLeft: 56}}>
+                <span style={{color:C.gold}}>"trace"</span>: <span style={{color: C.amber, fontStyle:'italic'}}>{'{ /* new field */ }'}</span>
+              </div>
+              <div style={{paddingLeft: 28}}>{'}'}</div>
+              <div>{'}'}</div>
+            </div>
+          </div>
+
+          {/* Caption bottom */}
+          <div style={{
+            position:'absolute', bottom: 110, left: '50%', transform:'translateX(-50%)',
+            opacity: interpolate(e, [2.6, 3.6], [0, 1], Easing.expoOut),
+          }}>
+            <div style={{
+              fontFamily: F.display, fontSize: 46, color: C.ink,
+              fontWeight: 300, letterSpacing:'-0.005em', textAlign:'center'
+            }}>The schema breaks. The pipeline breaks. The weekend breaks.</div>
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // SCENE 3 · The Idea — Subcolumn Extraction (10 → 16.5s)
+    //   JSON document → fields fly out into typed columns.
+    // ──────────────────────────────────────────────────────────────────
+    function Scene3Idea() {
+      const { t, duration } = useSprite();
+      const e = t * duration;
+      const enterT = interpolate(e, [0.0, 1.0], [0, 1], Easing.expoOut);
+      const exitT  = interpolate(e, [7.0, 8.0], [1, 0], Easing.easeIn);
+      const opacity = enterT * exitT;
+
+      // JSON → columns transition (start at 1.6s)
+      const splitP = interpolate(e, [1.6, 4.0], [0, 1], Easing.expoOut);
+
+      const fields = [
+        { name: 'user_id', type: 'BIGINT', sample: '12345', color: C.blue },
+        { name: 'event',   type: 'VARCHAR', sample: 'click', color: C.mint },
+        { name: 'ts',      type: 'TIMESTAMP', sample: '10:00:00Z', color: C.amber },
+      ];
+
+      return (
+        <div style={{position:'absolute', inset:0, opacity, background: C.bg}}>
+          {/* Eyebrow */}
+          <div style={{position:'absolute', top: 88, left:'50%', transform:'translateX(-50%)', textAlign:'center'}}>
+            <div style={{fontFamily: F.mono, fontSize: 18, color: C.amber, letterSpacing:'0.32em'}}>
+              THE&nbsp;ELEGANT&nbsp;IDEA
+            </div>
+            <div style={{
+              marginTop: 16, fontFamily: F.display, fontSize: 84, fontWeight: 700,
+              color: C.ink, letterSpacing:'-0.025em',
+            }}>Subcolumn Extraction</div>
+          </div>
+
+          {/* JSON source — left side, fading as splitP grows */}
+          <div style={{
+            position:'absolute', left: 180, top: 360, width: 540,
+            opacity: 1 - splitP * 0.85,
+            transform:`translateX(${-splitP * 60}px)`,
+          }}>
+            <div style={{fontFamily: F.mono, fontSize: 13, color: C.mute, letterSpacing:'0.2em', marginBottom: 20}}>
+              RAW&nbsp;JSON
+            </div>
+            <div style={{fontFamily: F.mono, fontSize: 22, color: C.ink, lineHeight: 1.7}}>
+              <div>{'{'}</div>
+              <div style={{paddingLeft:28}}><span style={{color:C.gold}}>"user_id"</span>: <span style={{color:C.blue}}>12345</span>,</div>
+              <div style={{paddingLeft:28}}><span style={{color:C.gold}}>"event"</span>: <span style={{color:C.mint}}>"click"</span>,</div>
+              <div style={{paddingLeft:28}}><span style={{color:C.gold}}>"ts"</span>: <span style={{color:C.amber}}>"10:00:00Z"</span>,</div>
+              <div style={{paddingLeft:28}}><span style={{color:C.gold}}>"props"</span>: {'{ ... }'}</div>
+              <div>{'}'}</div>
+            </div>
+          </div>
+
+          {/* Arrow / extraction line */}
+          <div style={{
+            position:'absolute', left: 720, top: 540, width: 140, height: 2,
+            background: `linear-gradient(90deg, transparent, ${C.amber} 30%, ${C.amber} 70%, transparent)`,
+            opacity: splitP * 0.9,
+          }}>
+            <div style={{
+              position:'absolute', right: -2, top: -5, width: 0, height: 0,
+              borderLeft: `12px solid ${C.amber}`,
+              borderTop:'6px solid transparent', borderBottom:'6px solid transparent',
+              opacity: splitP,
+            }}/>
+            <div style={{
+              position:'absolute', top: -36, left: '50%', transform:'translateX(-50%)',
+              fontFamily: F.mono, fontSize: 11, color: C.amber, letterSpacing:'0.24em',
+              opacity: splitP, whiteSpace:'nowrap',
+            }}>EXTRACT</div>
+          </div>
+
+          {/* Right: typed columns */}
+          <div style={{position:'absolute', right: 180, top: 360, display:'flex', gap: 18}}>
+            {fields.map((f, i) => {
+              const startAt = 1.8 + i * 0.25;
+              const reveal = interpolate(e, [startAt, startAt + 0.9], [0, 1], Easing.expoOut);
+              return (
+                <div key={f.name} style={{
+                  width: 196, opacity: reveal,
+                  transform:`translateY(${(1 - reveal) * 30}px)`,
+                }}>
+                  <div style={{
+                    fontFamily: F.mono, fontSize: 11, color: f.color,
+                    letterSpacing:'0.2em', marginBottom: 12, textTransform:'uppercase',
+                  }}>{f.type}</div>
+                  <div style={{
+                    fontFamily: F.mono, fontSize: 17, color: C.ink, marginBottom: 18,
+                    paddingBottom: 14, borderBottom: `1px solid ${C.line}`,
+                  }}>{f.name}</div>
+                  {[f.sample, '12346', '12347', '12348', '12349'].slice(0, 5).map((v, k) => {
+                    const sampleVal = i === 0 ? ['12345','12346','12347','12348','12349'][k]
+                                    : i === 1 ? ['click','purchase','click','view','click'][k]
+                                    : ['10:00:00Z','10:01:00Z','10:01:30Z','10:02:00Z','10:02:15Z'][k];
+                    return (
+                      <div key={k} style={{
+                        fontFamily: F.mono, fontSize: 14, color: C.gold,
+                        padding:'8px 0', borderBottom: k === 4 ? 'none' : `1px dotted ${C.line}`,
+                        opacity: interpolate(e, [startAt + 0.2 + k * 0.1, startAt + 0.6 + k * 0.1], [0, 1], Easing.expoOut),
+                      }}>{sampleVal}</div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+
+            {/* "+ binary fallback" indicator */}
+            <div style={{
+              width: 196,
+              opacity: interpolate(e, [3.4, 4.4], [0, 1], Easing.expoOut),
+              transform:`translateY(${interpolate(e, [3.4, 4.4], [30, 0], Easing.expoOut)}px)`,
+            }}>
+              <div style={{
+                fontFamily: F.mono, fontSize: 11, color: C.mute,
+                letterSpacing:'0.2em', marginBottom: 12,
+              }}>BINARY</div>
+              <div style={{
+                fontFamily: F.mono, fontSize: 17, color: C.mute, marginBottom: 18,
+                paddingBottom: 14, borderBottom: `1px solid ${C.line}`, fontStyle:'italic',
+              }}>props.*</div>
+              {[0,1,2,3,4].map(k => (
+                <div key={k} style={{
+                  fontFamily: F.mono, fontSize: 14, color: 'rgba(110,105,96,0.7)',
+                  padding:'8px 0', borderBottom: k === 4 ? 'none' : `1px dotted ${C.line}`,
+                  letterSpacing:'0.1em',
+                }}>·····</div>
+              ))}
+            </div>
+          </div>
+
+          {/* Caption */}
+          <div style={{
+            position:'absolute', bottom: 110, left: '50%', transform:'translateX(-50%)',
+            opacity: interpolate(e, [4.2, 5.2], [0, 1], Easing.expoOut),
+            textAlign:'center', whiteSpace:'nowrap'
+          }}>
+            <div style={{fontFamily: F.display, fontSize: 40, color: C.ink, fontWeight: 300, letterSpacing:'-0.005em', whiteSpace:'nowrap'}}>
+              No schema upfront. Columnar performance at query time.
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // SCENE 4 · Three Philosophies (15.5 → 26s)
+    //   Snowflake / Doris / Iceberg cards reveal in sequence.
+    // ──────────────────────────────────────────────────────────────────
+    function Scene4Three() {
+      const { t, duration } = useSprite();
+      const e = t * duration;
+      const enterT = interpolate(e, [0.0, 1.0], [0, 1], Easing.expoOut);
+      const exitT  = interpolate(e, [10.0, 11.5], [1, 0], Easing.easeIn);
+      const opacity = enterT * exitT;
+
+      const cards = [
+        {
+          start: 0.4,
+          name: 'Snowflake',
+          tag: 'Fully Managed',
+          accent: C.blue,
+          philosophy: '"We handle it for you."',
+          stats: [
+            ['Column limit',   '200, system-decided'],
+            ['Type conflict',  'fall back to binary'],
+            ['Indexing',       'managed service'],
+            ['Control',        'none'],
+          ],
+        },
+        {
+          start: 1.6,
+          name: 'Apache Doris',
+          tag: 'Performance + Control',
+          accent: C.amber,
+          philosophy: '"Here are the knobs."',
+          stats: [
+            ['Column limit',   '2,000, user-tunable'],
+            ['Type conflict',  'promotion + coexist'],
+            ['Indexing',       'inverted · BF · MinMax'],
+            ['Control',        'Schema Template'],
+          ],
+        },
+        {
+          start: 2.8,
+          name: 'Iceberg / Parquet',
+          tag: 'Open Standard',
+          accent: C.mint,
+          philosophy: '"We define the standard."',
+          stats: [
+            ['Column limit',   'engine-decided'],
+            ['Type conflict',  'typed + untyped dual'],
+            ['Indexing',       'native stats + Bloom'],
+            ['Control',        'shredding config'],
+          ],
+        },
+      ];
+
+      return (
+        <div style={{position:'absolute', inset:0, opacity, background: C.bg}}>
+          {/* Eyebrow */}
+          <div style={{position:'absolute', top: 88, left:'50%', transform:'translateX(-50%)', textAlign:'center'}}>
+            <div style={{fontFamily: F.mono, fontSize: 18, color: C.amber, letterSpacing:'0.32em'}}>
+              THREE&nbsp;PHILOSOPHIES
+            </div>
+            <div style={{
+              marginTop: 16, fontFamily: F.display, fontSize: 72, fontWeight: 700,
+              color: C.ink, letterSpacing:'-0.025em',
+            }}>One Idea, Three Answers.</div>
+          </div>
+
+          {/* Cards */}
+          <div style={{
+            position:'absolute', top: 320, left: '50%', transform:'translateX(-50%)',
+            display:'flex', gap: 36,
+          }}>
+            {cards.map(c => {
+              const r = interpolate(e, [c.start, c.start + 1.0], [0, 1], Easing.expoOut);
+              return (
+                <div key={c.name} style={{
+                  width: 480, opacity: r,
+                  transform:`translateY(${(1 - r) * 40}px)`,
+                  border:`1px solid ${C.line}`,
+                  borderTop: `2px solid ${c.accent}`,
+                  background:'rgba(255,255,255,0.015)',
+                  padding: '36px 36px 32px',
+                  position:'relative',
+                }}>
+                  <div style={{fontFamily: F.mono, fontSize: 14, color: c.accent, letterSpacing:'0.28em'}}>
+                    {c.tag.toUpperCase()}
+                  </div>
+                  <div style={{
+                    marginTop: 14, fontFamily: F.display, fontSize: 40, fontWeight: 700,
+                    color: C.ink, letterSpacing:'-0.02em',
+                  }}>{c.name}</div>
+                  <div style={{
+                    marginTop: 10, fontFamily: F.display, fontWeight: 400,
+                    fontSize: 18, color: c.accent, letterSpacing:'0.01em',
+                  }}>{c.philosophy}</div>
+
+                  <div style={{marginTop: 30, borderTop: `1px solid ${C.line}`, paddingTop: 22}}>
+                    {c.stats.map(([k, v], i) => (
+                      <div key={k} style={{
+                        display:'flex', justifyContent:'space-between',
+                        padding:'12px 0',
+                        borderBottom: i === c.stats.length - 1 ? 'none' : `1px dotted ${C.line}`,
+                        opacity: interpolate(e, [c.start + 0.5 + i * 0.08, c.start + 0.9 + i * 0.08], [0, 1], Easing.expoOut),
+                      }}>
+                        <span style={{fontFamily: F.mono, fontSize: 12, color: C.mute, letterSpacing:'0.08em'}}>{k}</span>
+                        <span style={{fontFamily: F.mono, fontSize: 13, color: C.ink}}>{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Bottom caption */}
+          <div style={{
+            position:'absolute', bottom: 110, left: '50%', transform:'translateX(-50%)',
+            opacity: interpolate(e, [4.6, 5.8], [0, 1], Easing.expoOut),
+            textAlign:'center',
+          }}>
+            <div style={{fontFamily: F.display, fontSize: 36, color: C.mute, fontWeight: 300, letterSpacing:'0.01em', whiteSpace:'nowrap'}}>
+              No winner across every dimension — only different trade-offs.
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // SCENE 5 · Convergence + CTA (25 → 30s)
+    // ──────────────────────────────────────────────────────────────────
+    function Scene5Outro() {
+      const { t, duration } = useSprite();
+      const e = t * duration;
+      const enterT = interpolate(e, [0.0, 1.0], [0, 1], Easing.expoOut);
+      const opacity = enterT;
+
+      // Three lines converging into one
+      const conv = interpolate(e, [0.4, 2.4], [0, 1], Easing.easeInOut);
+
+      return (
+        <div style={{position:'absolute', inset:0, opacity, background: C.bg}}>
+          {/* Eyebrow */}
+          <div style={{
+            position:'absolute', top: 140, left:'50%', transform:'translateX(-50%)',
+            opacity: interpolate(e, [0.2, 1.2], [0, 1], Easing.expoOut),
+          }}>
+            <div style={{fontFamily: F.mono, fontSize: 18, color: C.amber, letterSpacing:'0.32em', textAlign:'center'}}>
+              THE&nbsp;CONVERGENCE
+            </div>
+          </div>
+
+          {/* Converging lines SVG */}
+          <svg width="1200" height="320" viewBox="0 0 1200 320" style={{
+            position:'absolute', top: 220, left: '50%', transform:'translateX(-50%)',
+          }}>
+            {/* Three streams */}
+            {[
+              { y: 40,  color: C.blue, label: 'Snowflake' },
+              { y: 160, color: C.amber, label: 'Apache Doris' },
+              { y: 280, color: C.mint, label: 'Iceberg / Parquet' },
+            ].map((s, i) => {
+              const startX = 0;
+              const midX = 600 + conv * 0;
+              const endX = 1100;
+              const endY = 160; // converge to middle
+              const cx = 720;
+              const path = `M ${startX} ${s.y} C ${cx} ${s.y}, ${cx} ${interpolate(conv, [0,1], [s.y, endY])}, ${endX} ${interpolate(conv, [0,1], [s.y, endY])}`;
+              return (
+                <g key={i}>
+                  <path d={path}
+                    stroke={s.color} strokeWidth="2" fill="none"
+                    opacity={interpolate(e, [0.4 + i*0.15, 1.4 + i*0.15], [0, 0.85], Easing.expoOut)}
+                    strokeDasharray={`${conv * 1300}, 2000`}
+                  />
+                  <text x={startX + 8} y={s.y - 14}
+                    fontFamily={F.mono} fontSize="16" fill={s.color} letterSpacing="0.1em"
+                    opacity={interpolate(e, [0.4 + i*0.15, 1.4 + i*0.15], [0, 1], Easing.expoOut)}>
+                    {s.label}
+                  </text>
+                </g>
+              );
+            })}
+            {/* Convergence node */}
+            <circle cx="1100" cy="160" r={interpolate(e, [2.0, 2.8], [0, 14], Easing.overshoot)}
+              fill="none" stroke={C.ink} strokeWidth="2" />
+            <circle cx="1100" cy="160" r={interpolate(e, [2.2, 3.0], [0, 6], Easing.overshoot)}
+              fill={C.ink} />
+            <text x="1100" y="200"
+              fontFamily={F.mono} fontSize="13" fill={C.ink} letterSpacing="0.2em" textAnchor="middle"
+              opacity={interpolate(e, [2.4, 3.2], [0, 1], Easing.expoOut)}>
+              OPEN&nbsp;FORMAT
+            </text>
+          </svg>
+
+          {/* Title block */}
+          <div style={{
+            position:'absolute', bottom: 220, left:'50%', transform:'translateX(-50%)',
+            textAlign:'center', width: 1500,
+            opacity: interpolate(e, [2.6, 3.8], [0, 1], Easing.expoOut),
+          }}>
+            <div style={{
+              fontFamily: F.display, fontSize: 72, fontWeight: 700,
+              color: C.ink, letterSpacing:'-0.02em', lineHeight: 1.1,
+            }}>
+              Beyond <span style={{fontWeight: 800, color: C.amber}}>JSON</span>
+            </div>
+            <div style={{
+              marginTop: 18,
+              fontFamily: F.display, fontSize: 40, fontWeight: 300,
+              color: C.mute, letterSpacing:'-0.005em',
+            }}>The Evolution of Variant Data Types in Modern Analytics</div>
+          </div>
+
+          {/* CTA */}
+          <div style={{
+            position:'absolute', bottom: 110, left:'50%', transform:'translateX(-50%)',
+            textAlign:'center',
+            opacity: interpolate(e, [3.2, 4.2], [0, 1], Easing.expoOut),
+          }}>
+            <div style={{
+              fontFamily: F.mono, fontSize: 18, color: C.amber,
+              letterSpacing:'0.3em',
+            }}>READ&nbsp;THE&nbsp;FULL&nbsp;ARTICLE&nbsp;→</div>
+          </div>
+
+          {/* Watermark */}
+          <div style={{
+            position:'absolute', bottom: 24, right: 32,
+            fontFamily: F.mono, fontSize: 11, color:'rgba(240,237,230,0.32)',
+            letterSpacing:'0.15em', pointerEvents:'none',
+          }}>Created by Huashu-Design</div>
+        </div>
+      );
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // App — overlapping cross-fades for film-like transitions
+    // ──────────────────────────────────────────────────────────────────
+    function App() {
+      return (
+        <Stage duration={38} width={1920} height={1080} bgColor={C.bg} loop={true}>
+          <Sprite start={0}    end={7.5}>  <Scene1Hook /></Sprite>
+          <Sprite start={6.5}  end={14.0}> <Scene2Problem /></Sprite>
+          <Sprite start={13.0} end={21.5}> <Scene3Idea /></Sprite>
+          <Sprite start={20.5} end={32.5}> <Scene4Three /></Sprite>
+          <Sprite start={31.5} end={38.0}> <Scene5Outro /></Sprite>
+        </Stage>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
