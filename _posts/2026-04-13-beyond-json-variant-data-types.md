@@ -22,6 +22,16 @@ Traditional analytics architectures rest on one assumption: data has a fixed sch
 
 Can we preserve JSON's flexibility, achieve columnar analytics performance, and natively store large semi-structured payloads all at the same time?
 
+## TL;DR
+
+- **JSON stopped being a supporting format.** It is now core business data — especially with AI agents producing kilobyte-to-megabyte traces at scale. Analytics engines built around fixed schemas are struggling to keep up.
+- **Subcolumn extraction is the shared answer.** Frequent JSON fields get pulled into columnar storage automatically; rare or sparse fields stay in binary. Snowflake, Apache Doris, ClickHouse, Apache Iceberg, and Parquet all implement this idea.
+- **Three philosophies, not three parameter sets:**
+  - **Snowflake** — fully managed, zero knobs, conservative defaults (200-column limit, fall back to binary on type conflict).
+  - **Apache Doris** — performance-first, aggressive defaults (2,000-column limit), fine-grained controls (Schema Template, inverted / Bloom / MinMax indexes) when you need them.
+  - **Iceberg / Parquet** — open standard, engine-agnostic shredding; formats own data organization, engines own query optimization.
+- **Open formats are winning the interoperability layer.** Iceberg Variant + Parquet Shredding move subcolumn extraction out of any single engine's proprietary format. That decoupling is where the industry is converging.
+
 <iframe src="/assets/animations/variant-data-types/index.html"
         style="width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; display: block; margin: 1.5em 0; background: #06080B;"
         loading="lazy"
@@ -107,6 +117,8 @@ Controllability comes through shredding configuration. In Iceberg v3, users can 
 
 The significance of this design is **decoupling**. The format handles physical data organization; the engine handles query optimization. Any Iceberg/Parquet-compatible engine (Doris, [Spark](https://spark.apache.org/), [Trino](https://trino.io/), [DuckDB](https://duckdb.org/)) can read and write the same Variant data while layering its own optimizations on top.
 
+This "let the format define the contract, let engines compete on optimization" approach shows up elsewhere in the Iceberg ecosystem — [the community's ongoing secondary-index debate](/posts/how-hard-is-it-to-add-an-index-to-an-open-format/) wrestles with the same tension between standardization and engine independence.
+
 Data is no longer locked inside any single engine's proprietary format.
 
 ## Three Philosophies, One Landscape
@@ -141,7 +153,7 @@ A new division of labor is forming:
 - **Open formats** own data organization and interoperability. Different engines and tools share the same data.
 - **Analytics engines** own differentiated query optimization: indexing strategies, vectorized scanning, predicate pushdown, concurrency control.
 
-Here is a concrete example. Apache Doris can read and write Variant data in Iceberg tables, then build its own inverted indexes on top to accelerate filter queries. Spark can read the same data and run large-scale batch processing in its own way. DuckDB can do interactive analysis on the same data locally. The data is shared; the optimizations are each engine's own.
+Here is a concrete example. Apache Doris can read and write Variant data in Iceberg tables — and [as of Doris 4.1, run full DML on V3 tables](/posts/apache-doris-41-iceberg-v3-lakehouse/) from the same SQL client — then build its own inverted indexes on top to accelerate filter queries. Spark can read the same data and run large-scale batch processing in its own way. DuckDB can do interactive analysis on the same data locally. The data is shared; the optimizations are each engine's own.
 
 **Open formats provide the foundation. Engines build their own houses on top.** This is the direction the industry is converging toward.
 

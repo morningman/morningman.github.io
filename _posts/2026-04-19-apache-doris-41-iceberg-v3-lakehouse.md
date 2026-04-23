@@ -615,6 +615,13 @@ Next time we'll look at [Apache Paimon](https://paimon.apache.org/), plus Doris'
 
 ## Further Reading
 
+**From this blog**
+
+- [Beyond JSON: The Evolution of Variant Data Types in Modern Analytics](/posts/beyond-json-variant-data-types/) — another piece of the Iceberg V3 story: how semi-structured data fits into the open-format conversation.
+- [How Hard Is It to Add an Index to an Open Format](/posts/how-hard-is-it-to-add-an-index-to-an-open-format/) — what the Iceberg community is debating about secondary indexes, another V3-era design challenge built on the same Puffin foundation as Deletion Vectors.
+
+**External**
+
 - [Apache Iceberg V3 specification](https://iceberg.apache.org/spec/)
 - [Puffin file format specification](https://iceberg.apache.org/puffin-spec/) — the container format for Deletion Vectors
 - [Apache Doris Iceberg catalog docs](https://doris.apache.org/docs/lakehouse/catalogs/iceberg-catalog)

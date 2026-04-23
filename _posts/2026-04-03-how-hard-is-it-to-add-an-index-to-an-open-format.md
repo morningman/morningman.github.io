@@ -155,7 +155,7 @@ Let us examine the various index proposals surfacing in community discussions. T
 
 **How it works:**
 
-Developers build a Bloom filter for a target column (like `user_id`) on a per-data-file basis. They store this Bloom data in a Puffin file (Iceberg's container format for statistics and index data).
+Developers build a Bloom filter for a target column (like `user_id`) on a per-data-file basis. They store this Bloom data in a Puffin file (Iceberg's container format for statistics and index data — the same format [V3 Deletion Vectors](/posts/apache-doris-41-iceberg-v3-lakehouse/) use to collapse per-commit delete files into a single bitmap).
 
 When a query arrives:
 
@@ -394,6 +394,10 @@ Iceberg's extensive discussion surrounding indexes delivers a vivid, public mast
 To introduce an index into a foundational data format like Iceberg—one hosting a massive ecosystem and multiple engine integrations—you must navigate deep waters. You have to resolve metadata binding mechanics, lifecycle management, strict consistency guarantees, and compatibility strategies across varying snapshots. Every problem you solve requires a difficult, precise tradeoff between consistency and performance.
 
 If you enjoy exploring these backend logic subjects and architectural evolutions, I strongly recommend reading the original discussions in the community mailing lists and PRs. That is where you will find the freshest, most vibrant engineering design wisdom on the front lines.
+
+**Related from this blog:**
+*   [Apache Doris 4.1 on Iceberg V3: Running the Full Lakehouse Lifecycle from One SQL Engine](/posts/apache-doris-41-iceberg-v3-lakehouse/) — the Deletion Vector and Row Lineage story on the same V3 foundation where these indexes will eventually land.
+*   [Beyond JSON: The Evolution of Variant Data Types in Modern Analytics](/posts/beyond-json-variant-data-types/) — another "open format vs. closed engine" design debate playing out in the Iceberg ecosystem.
 
 **References:**
 *   [PR #15101: Secondary Index metadata handling POC](https://github.com/apache/iceberg/pull/15101)
