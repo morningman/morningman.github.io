@@ -2,6 +2,7 @@
 # the default layout is 'page'
 icon: fas fa-info-circle
 order: 4
+description: Mingyu Chen (Rayner) — Co-Founder & VP of Engineering at VeloDB, PMC Chair of Apache Doris. 12 years building data systems, ex-Baidu. Writes on lakehouse architecture and open-source database internals.
 ---
 
 ![Mingyu Chen (Rayner)](/assets/img/headshot.png){: width="220" height="220" .rounded-10 .shadow }
