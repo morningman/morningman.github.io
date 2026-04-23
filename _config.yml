@@ -213,8 +213,10 @@ exclude:
   - "*.gemspec"
   - docs
   - tools
+  - prompt
   - README.md
   - LICENSE
+  - SEO-GEO-SOP.md
   - purgecss.js
   - "*.config.js"
   - "package*.json"
