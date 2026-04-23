@@ -2,7 +2,7 @@
 title: "Apache Doris 4.1 on Iceberg V3: Running the Full Lakehouse Lifecycle from One SQL Engine"
 date: 2026-04-19 10:00:00 -0700
 categories: [Data Engineering, Apache Iceberg]
-tags: [apache doris, iceberg, iceberg v3, deletion vector, row lineage, merge into, lakehouse, dml, cdc, puffin]
+tags: [apache doris, apache iceberg, iceberg v3, lakehouse, cdc]
 description: "Apache Doris 4.1 adds Iceberg V3 support: run UPDATE, DELETE, and MERGE INTO on Iceberg tables with Deletion Vectors and Row Lineage, all from SQL."
 ---
 
