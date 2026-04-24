@@ -4,6 +4,9 @@ date: 2026-04-13 17:00:00 -0700
 categories: [Data Engineering, Semi-Structured Data]
 tags: [variant, semi-structured, apache doris, apache iceberg, apache parquet, open format, ai]
 description: "JSON stopped being a supporting format and became core business data. Why analytics engines need Variant types to keep up — and how Snowflake, Doris, and Iceberg are solving it."
+image:
+  path: /assets/img/posts/2026-04-13-beyond-json-variant-data-types-og.jpg
+  alt: "Beyond JSON: the evolution of Variant data types in modern analytics."
 ---
 
 JSON is the one format that every system in your stack already speaks. It is also the one format that most analytics engines still struggle to handle efficiently. Two examples show why this matters more than ever.

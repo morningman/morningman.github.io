@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>rayner.notes · preview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="rayner.css">
+</head>
+<body>
+
+<div class="rayner-viewport">
+
+  <header class="rayner-header">
+    <div class="rayner-header__top">
+      <div>
+        <h1 class="rayner-header__title">
+          <a href="#" style="border: none; color: inherit;">rayner.notes</a><span class="rayner-header__cursor"></span>
+        </h1>
+        <p class="rayner-header__tagline">A long-running log on data systems &mdash; storage engines, open table formats, query execution, and the engineering culture around them. Written while building <a href="#">Apache Doris</a>.</p>
+      </div>
+      <div class="rayner-header__profile">
+        <div class="row"><span class="k">author</span><span class="v">Mingyu Chen (Rayner)</span></div>
+        <div class="row"><span class="k">role</span><span class="v">Co-founder / VPE, VeloDB</span></div>
+        <div class="row"><span class="k">chair</span><span class="v accent">Apache Doris PMC</span></div>
+        <div class="row"><span class="k">timezone</span><span class="v">America/Los_Angeles</span></div>
+        <div class="row"><span class="k">updated</span><span class="v">2026-04-23</span></div>
+      </div>
+    </div>
+    <nav class="rayner-header__nav">
+      <a class="active" href="#">~/essays</a>
+      <a href="#">~/archive</a>
+      <a href="#">~/tags</a>
+      <a href="#">~/about</a>
+      <a href="#">~/rss</a>
+      <button type="button" class="rayner-theme-toggle" id="rayner-theme-toggle">[ dark ]</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="rayner-ledger-caption">
+      <span class="tick">&#9656;</span>
+      <h2>Essays &middot; Ledger</h2>
+      <span class="sub">sorted by commit time, desc &middot; 3 rows &middot; 12.4k total words</span>
+    </div>
+
+    <table class="rayner-ledger">
+      <thead>
+        <tr><th>#id</th><th>date</th><th>title / abstract</th><th>tags</th><th style="text-align: right;">stats</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-id">e0003</td>
+          <td class="col-date">2026-04-19</td>
+          <td class="col-title">
+            <div class="title"><a href="#">Apache Doris 4.1 on Iceberg V3: Running the Full Lakehouse Lifecycle from One SQL Engine</a></div>
+            <div class="dek">Apache Doris 4.1 adds Iceberg V3 support: run UPDATE, DELETE, and MERGE INTO on Iceberg tables with Deletion Vectors and Row Lineage, all from SQL.</div>
+          </td>
+          <td class="col-tags"><span>apache-doris</span><span>apache-iceberg</span><span>iceberg-v3</span><span>lakehouse</span></td>
+          <td class="col-stats"><b>18 min</b>4,237 w</td>
+        </tr>
+        <tr>
+          <td class="col-id">e0002</td>
+          <td class="col-date">2026-04-13</td>
+          <td class="col-title">
+            <div class="title"><a href="#">Beyond JSON: The Evolution of Variant Data Types in Modern Analytics</a></div>
+            <div class="dek">Why schema-on-read is finally earning its keep. A tour of the Variant design space across Iceberg, Parquet, Doris, Snowflake, and why it matters more than another JSON_EXTRACT.</div>
+          </td>
+          <td class="col-tags"><span>variant</span><span>semi-structured</span><span>apache-doris</span><span>apache-iceberg</span></td>
+          <td class="col-stats"><b>14 min</b>3,145 w</td>
+        </tr>
+        <tr>
+          <td class="col-id">e0001</td>
+          <td class="col-date">2026-04-03</td>
+          <td class="col-title">
+            <div class="title"><a href="#">How Hard Is It to Add an Index to an Open Format? Lessons from the Apache Iceberg Community</a></div>
+            <div class="dek">An index sounds like a database feature. On an open table format, it is a political negotiation between engines, a storage question, and a spec problem all at once.</div>
+          </td>
+          <td class="col-tags"><span>apache-iceberg</span><span>indexing</span><span>open-format</span><span>lakehouse</span></td>
+          <td class="col-stats"><b>22 min</b>4,991 w</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <footer class="rayner-footer">
+    <div class="cell">
+      <b>building</b>
+      <a href="#">Apache Doris 4.1</a> &mdash; hardening Iceberg V3 write path.
+    </div>
+    <div class="cell">
+      <b>elsewhere</b>
+      <a href="#">github</a> &middot; <a href="#">linkedin</a>
+    </div>
+    <div class="cell">
+      <b>doris</b>
+      <a href="#">slack</a> &middot; <a href="#">discord</a>
+    </div>
+    <div class="cell">
+      <b>contact</b>
+      <a href="#">morningman@apache.org</a>
+    </div>
+  </footer>
+
+  <div class="rayner-footer-meta">
+    <span>&copy; 2026 Mingyu Chen (Rayner) &middot; CC BY 4.0</span>
+    <span>Built with Jekyll &middot; schema v3 &middot; no trackers, no newsletter</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('rayner-theme-toggle');
+  if (!btn) return;
+  function label() {
+    var t = document.documentElement.getAttribute('data-theme') || 'dark';
+    btn.textContent = '[ ' + (t === 'dark' ? 'dark' : 'light') + ' ]';
+  }
+  label();
+  btn.addEventListener('click', function () {
+    var current = document.documentElement.getAttribute('data-theme') || 'dark';
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    label();
+  });
+})();
+</script>
+</body>
+</html>

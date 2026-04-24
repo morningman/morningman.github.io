@@ -4,6 +4,9 @@ date: 2026-04-19 10:00:00 -0700
 categories: [Data Engineering, Apache Iceberg]
 tags: [apache doris, apache iceberg, iceberg v3, lakehouse, cdc]
 description: "Apache Doris 4.1 adds Iceberg V3 support: run UPDATE, DELETE, and MERGE INTO on Iceberg tables with Deletion Vectors and Row Lineage, all from SQL."
+image:
+  path: /assets/img/posts/2026-04-19-apache-doris-41-iceberg-v3-lakehouse-og.jpg
+  alt: "Apache Doris 4.1 on Iceberg V3 — running the full lakehouse lifecycle from one SQL engine."
 ---
 
 A quick grounding before we start. [Apache Doris](https://doris.apache.org/) is an open-source real-time analytics and search database built for the AI era, delivering high-concurrency, low-latency analytics and search over large datasets. [Apache Iceberg](https://iceberg.apache.org/) is an open table format that turns a pile of Parquet files in object storage into a transactional, schema-aware table that many engines can share. Doris has long served as a compute engine that reads Iceberg data directly, bringing low-latency analytics to the lakehouse. In 4.1, it goes further and adds full-lifecycle management on top of that read path.

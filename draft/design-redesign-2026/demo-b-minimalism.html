@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Direction B · Systems Minimalism</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fffef9;
+    --ink: #111;
+    --ink-soft: #3b3833;
+    --ink-mute: #7a7468;
+    --ink-faint: #b5b0a5;
+    --rule: #e9e4d8;
+    --sepia: #6b5f4a;
+    --serif: "EB Garamond", "Iowan Old Style", "Times New Roman", serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); font-family: var(--serif); }
+  body { font-size: 20px; line-height: 1.5; font-weight: 400; font-feature-settings: "liga", "onum"; }
+
+  a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--ink-mute); }
+  a:hover { border-bottom: 1px solid var(--ink); color: var(--ink); background: #f5efdc; }
+
+  .viewport { max-width: 1200px; margin: 0 auto; padding: 0 64px; }
+  .section-label {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 56px 0 24px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-label .pill {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    color: var(--sepia); text-transform: uppercase;
+    border: 1px solid var(--sepia); padding: 4px 9px;
+  }
+  .section-label .pill-text {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    color: var(--ink-mute); text-transform: uppercase;
+  }
+
+  /* ============ HOME ============ */
+  .home { padding: 32px 0 96px; border-bottom: 1px solid var(--rule); }
+
+  .home-header {
+    display: grid; grid-template-columns: 220px 1fr;
+    gap: 48px; margin-bottom: 72px; padding-top: 24px;
+  }
+  .home-header .gutter {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    color: var(--ink-mute); line-height: 1.5;
+  }
+  .home-header .gutter .name {
+    font-family: var(--serif); font-style: italic; font-size: 17px;
+    color: var(--ink); letter-spacing: 0; margin-bottom: 8px;
+  }
+  .home-header .gutter .lines { font-size: 11px; line-height: 1.7; }
+  .home-header .gutter .lines b { color: var(--ink-soft); font-weight: 500; }
+  .home-header .gutter .updated { margin-top: 20px; font-style: italic; color: var(--ink-faint); font-family: var(--serif); font-size: 13px; letter-spacing: 0; text-transform: none; }
+  .home-header .intro { max-width: 54ch; }
+  .home-header .intro p { margin: 0 0 16px; font-size: 21px; line-height: 1.45; color: var(--ink-soft); }
+  .home-header .intro p:first-child { font-size: 26px; line-height: 1.3; color: var(--ink); font-style: italic; margin-bottom: 24px; }
+
+  .nav-inline {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-mute);
+    letter-spacing: 0.04em; margin-top: 24px;
+  }
+  .nav-inline a { border: none; color: var(--ink); margin-right: 20px; padding-bottom: 1px; border-bottom: 1px dotted var(--ink-mute); }
+
+  .year-group { margin-bottom: 40px; }
+  .year-group .year-row {
+    display: grid; grid-template-columns: 220px 1fr; gap: 48px;
+    padding: 12px 0 6px; border-bottom: 1px solid var(--rule);
+    margin-bottom: 18px;
+  }
+  .year-group .year-row .year {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em;
+    color: var(--sepia);
+  }
+  .year-group .year-row .label {
+    font-family: var(--serif); font-style: italic; font-size: 14px;
+    color: var(--ink-mute);
+  }
+
+  .post-line {
+    display: grid; grid-template-columns: 220px 1fr; gap: 48px;
+    padding: 10px 0;
+    border-bottom: 1px dotted var(--rule);
+  }
+  .post-line .date {
+    font-family: var(--mono); font-size: 12px; color: var(--ink-mute);
+    letter-spacing: 0.03em; padding-top: 3px;
+  }
+  .post-line .meta-extra {
+    font-family: var(--mono); font-size: 10px; color: var(--ink-faint);
+    letter-spacing: 0.08em; margin-top: 4px; display: block;
+  }
+  .post-line .content { }
+  .post-line .title {
+    font-family: var(--serif); font-size: 19px; line-height: 1.35;
+    color: var(--ink); margin-bottom: 3px;
+  }
+  .post-line .title a {
+    border: none; color: var(--ink);
+  }
+  .post-line .title a:hover { color: var(--ink); border-bottom: 1px solid var(--ink); }
+  .post-line .tags {
+    font-family: var(--mono); font-size: 11px; color: var(--sepia);
+    letter-spacing: 0.02em;
+  }
+  .post-line .tags span { margin-right: 12px; }
+
+  /* ============ POST VIEW ============ */
+  .post-view { padding: 56px 0 120px; }
+
+  .post-view .crumb {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    color: var(--ink-mute);
+    margin-bottom: 40px;
+  }
+  .post-view .crumb a { border: none; color: var(--ink-mute); }
+  .post-view .crumb a:hover { color: var(--ink); }
+
+  .article-grid {
+    display: grid; grid-template-columns: 220px minmax(0, 660px) 1fr;
+    gap: 48px;
+  }
+  .article-gutter {
+    position: sticky; top: 24px; align-self: start;
+  }
+  .article-gutter .toc-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+    color: var(--ink-faint); text-transform: uppercase; margin-bottom: 10px;
+    border-top: 1px solid var(--rule); padding-top: 12px;
+  }
+  .article-gutter .toc {
+    font-family: var(--serif); font-size: 14px; line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .article-gutter .toc a {
+    display: block; border: none; color: var(--ink-soft);
+    padding: 3px 0 3px 0;
+  }
+  .article-gutter .toc a.active {
+    color: var(--ink); font-style: italic;
+    border-left: 2px solid var(--ink); padding-left: 10px; margin-left: -12px;
+  }
+  .article-gutter .toc a:hover { color: var(--ink); }
+
+  .article-gutter .meta-block {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+    color: var(--ink-mute); line-height: 1.8;
+    margin-top: 48px; padding-top: 14px; border-top: 1px solid var(--rule);
+  }
+  .article-gutter .meta-block b { color: var(--ink-soft); font-weight: 500; font-family: var(--serif); font-style: italic; font-size: 12px; letter-spacing: 0; text-transform: none; display: block; margin-bottom: 2px; }
+
+  .article {
+    font-size: 20px; line-height: 1.55;
+  }
+  .article h1 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: 40px; line-height: 1.15; letter-spacing: -0.015em;
+    margin: 0 0 14px;
+  }
+  .article .subhead {
+    font-family: var(--serif); font-style: italic;
+    font-size: 22px; color: var(--ink-soft); line-height: 1.4;
+    margin: 0 0 36px;
+  }
+  .article .meta-line {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em;
+    color: var(--ink-mute);
+    padding: 10px 0; margin-bottom: 32px;
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    display: flex; gap: 20px;
+  }
+  .article .meta-line b { color: var(--ink); font-weight: 500; font-family: var(--serif); font-style: italic; font-size: 14px; letter-spacing: 0; }
+
+  .article p { margin: 0 0 18px; }
+  .article h2 {
+    font-family: var(--serif); font-weight: 500;
+    font-size: 26px; line-height: 1.25;
+    margin: 44px 0 16px;
+  }
+
+  .article .tldr {
+    font-family: var(--serif); font-size: 18px; line-height: 1.5;
+    color: var(--ink-soft); margin: 28px 0;
+    padding: 20px 24px;
+    background: #faf6e8;
+    border: 1px solid #ede6cc;
+  }
+  .article .tldr b { color: var(--ink); font-weight: 500; font-style: italic; }
+  .article .tldr ul { padding-left: 18px; margin: 10px 0 0; }
+  .article .tldr li { margin-bottom: 6px; font-size: 17px; }
+
+  .article .sidenote-host { position: relative; }
+  .article .sidenote {
+    position: absolute; left: calc(100% + 48px); top: 0;
+    width: 200px;
+    font-family: var(--serif); font-size: 13px; line-height: 1.5;
+    color: var(--ink-mute); font-style: italic;
+  }
+  .article .sidenote sup {
+    font-family: var(--mono); font-style: normal;
+    color: var(--sepia); font-weight: 500;
+    margin-right: 4px;
+  }
+  .article .sn-marker {
+    color: var(--sepia); font-family: var(--mono); font-size: 11px;
+    vertical-align: super; font-weight: 500;
+  }
+
+  .article code {
+    font-family: var(--mono); font-size: 0.82em; background: #f4efdd;
+    padding: 1px 5px; color: var(--ink);
+  }
+  .article pre {
+    font-family: var(--mono); font-size: 14px; line-height: 1.55;
+    background: #fbf8ea; border-left: 2px solid var(--sepia);
+    padding: 14px 18px; margin: 20px 0;
+    overflow-x: auto;
+  }
+
+  .article blockquote {
+    font-family: var(--serif); font-style: italic;
+    font-size: 19px; line-height: 1.45; color: var(--ink-soft);
+    border-left: 2px solid var(--ink-mute);
+    margin: 24px 0; padding: 4px 0 4px 20px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="viewport">
+
+<div class="section-label">
+  <span class="pill">Direction B</span>
+  <span class="pill-text">Systems Minimalism · Home View</span>
+</div>
+
+<!-- ============================ HOME ============================ -->
+<div class="home">
+
+  <div class="home-header">
+    <div class="gutter">
+      <div class="name">Mingyu Chen (Rayner)</div>
+      <div class="lines">
+        <div><b>role</b> &nbsp;&nbsp; co-founder / vpe, velodb</div>
+        <div><b>chair</b> &nbsp; apache doris pmc</div>
+        <div><b>based</b> &nbsp; beijing · pacific time</div>
+        <div><b>since</b> &nbsp; 2013 (blog)</div>
+        <div><b>email</b> &nbsp; morningman@apache.org</div>
+      </div>
+      <div class="updated">Last updated 23 April 2026 · 3 essays</div>
+    </div>
+    <div class="intro">
+      <p>Notes from inside a storage engine.</p>
+      <p>I build Apache Doris — an MPP SQL engine for real-time analytics — and write about the things that show up when you try to make a query go fast in the real world: open table formats, semi-structured data, index design, the social engineering of open-source specs.</p>
+      <p>The posts here are long and the updates are irregular. This is closer to an archive than a feed. No newsletter, no tracking, no AI-generated anything.</p>
+      <div class="nav-inline">
+        <a href="#">essays</a>
+        <a href="#">notes</a>
+        <a href="#">reading</a>
+        <a href="#">about</a>
+        <a href="#">rss</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="year-group">
+    <div class="year-row">
+      <div class="year">2026</div>
+      <div class="label">three essays · ~60 min reading</div>
+    </div>
+
+    <div class="post-line">
+      <div class="date">
+        2026-04-19
+        <span class="meta-extra">18 min · 4.2k words</span>
+      </div>
+      <div class="content">
+        <div class="title"><a href="#">Apache Doris 4.1 on Iceberg V3: Running the Full Lakehouse Lifecycle from One SQL Engine</a></div>
+        <div class="tags"><span>iceberg-v3</span><span>deletion-vectors</span><span>cdc</span><span>merge-into</span></div>
+      </div>
+    </div>
+
+    <div class="post-line">
+      <div class="date">
+        2026-04-13
+        <span class="meta-extra">14 min · 3.1k words</span>
+      </div>
+      <div class="content">
+        <div class="title"><a href="#">Beyond JSON: The Evolution of Variant Data Types in Modern Analytics</a></div>
+        <div class="tags"><span>variant</span><span>semi-structured</span><span>parquet</span><span>open-format</span></div>
+      </div>
+    </div>
+
+    <div class="post-line">
+      <div class="date">
+        2026-04-03
+        <span class="meta-extra">22 min · 5.0k words</span>
+      </div>
+      <div class="content">
+        <div class="title"><a href="#">How Hard Is It to Add an Index to an Open Format? Lessons from the Apache Iceberg Community</a></div>
+        <div class="tags"><span>iceberg</span><span>indexing</span><span>vector-retrieval</span><span>governance</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="year-group">
+    <div class="year-row">
+      <div class="year">2025</div>
+      <div class="label">archive · placeholder for prior essays</div>
+    </div>
+    <div class="post-line">
+      <div class="date">earlier</div>
+      <div class="content">
+        <div class="title" style="color: var(--ink-mute); font-style: italic;">Older essays from the previous blog would be re-listed here, same density, one line per entry.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================ POST VIEW ============================ -->
+
+<div class="section-label">
+  <span class="pill">Direction B</span>
+  <span class="pill-text">Systems Minimalism · Reading View</span>
+</div>
+
+<div class="post-view">
+  <div class="crumb">
+    <a href="#">home</a> &nbsp;/&nbsp; <a href="#">essays</a> &nbsp;/&nbsp; doris-4.1-iceberg-v3
+  </div>
+
+  <div class="article-grid">
+    <aside class="article-gutter">
+      <div class="toc-label">Contents</div>
+      <nav class="toc">
+        <a href="#" class="active">1. 3 AM and Compaction</a>
+        <a href="#">2. What We Want to Be</a>
+        <a href="#">3. DML Back to the Query Layer</a>
+        <a href="#">4. Deletion Vectors</a>
+        <a href="#">5. Row Lineage</a>
+        <a href="#">6. Quick Start</a>
+      </nav>
+      <div class="meta-block">
+        <b>Published</b> 2026-04-19
+        <b>Revised</b> 2026-04-21
+        <b>Words</b> 4,237
+        <b>Reading</b> 18 min
+        <b>Status</b> stable
+        <b>License</b> cc-by-4.0
+      </div>
+    </aside>
+
+    <article class="article">
+      <div class="meta-line">
+        <b>Essay</b>
+        <span>DATA ENGINEERING</span>
+        <span>2026-04-19</span>
+        <span>18 MIN</span>
+      </div>
+      <h1>Apache Doris 4.1 on Iceberg V3</h1>
+      <p class="subhead">Running the full lakehouse lifecycle — read, write, manage, maintain — from one SQL engine.</p>
+
+      <p>A quick grounding before we start. <a href="#">Apache Doris</a> is an open-source real-time analytics and search database built for the AI era, delivering high-concurrency, low-latency analytics and search over large datasets. <a href="#">Apache Iceberg</a> is an open table format that turns a pile of Parquet files in object storage into a transactional, schema-aware table that many engines can share.</p>
+
+      <p>Doris has long served as a compute engine that reads Iceberg data directly, bringing low-latency analytics to the lakehouse. In 4.1, it goes further and adds full-lifecycle management on top of that read path. This post is about what changes when Doris can do more than read.</p>
+
+      <div class="tldr">
+        <b>TL;DR.</b>
+        <ul>
+          <li>Doris 4.1 adds full DML on Iceberg — <code>UPDATE</code>, <code>DELETE</code>, <code>MERGE INTO</code> — from the same SQL client you already use.</li>
+          <li>It lands Iceberg V3, so DML stays cheap and observable instead of accumulating debt.</li>
+          <li>Deletion Vectors replace position-delete files with a single Puffin bitmap per data file.</li>
+          <li>Row Lineage adds <code>_row_id</code> and <code>_last_updated_sequence_number</code> system columns that give CDC a real watermark.</li>
+          <li><code>MERGE INTO</code> and Row Lineage ship as experimental — POC before production.</li>
+        </ul>
+      </div>
+
+      <h2>It's 3 AM and You Just Want to Compact Some Files</h2>
+
+      <p>A data engineer is in Doris, investigating odd values in an Iceberg table. Queries are fast. The problem is clear: a batch of rows under one dimension is wrong and needs fixing.<span class="sn-marker">1</span></p>
+
+      <p>So they leave Doris. They write a Spark job, adjust the scheduler, open a PR, wait for review. More commonly, they hand the ticket to the data lake platform team next door, because they don't have cluster access. The next morning they come back to Doris to verify. The full loop took fourteen hours. The code was one <code>UPDATE</code>.</p>
+
+      <blockquote>Iceberg made the <em>table</em> a neutral protocol. Interacting with that table is anything but neutral — queries live in one engine, writes in another, maintenance in a third.</blockquote>
+
+      <p>The more everyday version of this pain is about small files. A CDC stream keeps writing into an Iceberg table, delete files accumulate, queries slow down. They know a <code>rewrite_data_files</code> run would fix it. But that procedure isn't in their hands. The platform team schedules it, reviews it, waits for a maintenance window. A task that should be one SQL statement becomes a Jira ticket.</p>
+
+      <pre>UPDATE iceberg_tbl
+   SET name = 'Alice-fixed'
+ WHERE id = 1;</pre>
+
+      <p>Apache Doris 4.1 cuts both taxes in two ways. First, it fills out Iceberg's DML so <em>query and fix</em> closes the loop inside one SQL client. Second, it lands Iceberg V3 so the loop can hold up architecturally over time.</p>
+
+    </article>
+
+    <aside class="article-gutter">
+      <div class="toc-label">Sidenotes</div>
+      <div class="sidenote" style="position: static; margin-bottom: 20px;">
+        <sup>1</sup> The canonical example in every internal post-mortem I've read from a lakehouse team: a data scientist spots a wrong value during query review, and the fix is scheduled into next week's maintenance window because of who has cluster access.
+      </div>
+    </aside>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>

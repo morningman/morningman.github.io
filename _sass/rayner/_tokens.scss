@@ -1,0 +1,104 @@
+// =========================================================
+// Rayner / Database Zine — design tokens
+// Dark-first. Light mode is an alt, not an inversion.
+// =========================================================
+
+:root {
+  // Typography stacks
+  --rayner-serif: "IBM Plex Serif", "Iowan Old Style", Georgia, serif;
+  --rayner-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --rayner-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+
+  // Measurements
+  --rayner-measure: 720px;        // article column
+  --rayner-measure-wide: 990px;   // article + sidebar
+  --rayner-max: 1240px;           // outer container
+  --rayner-baseline: 24px;        // grid paper interval
+  --rayner-radius: 0;             // brutalist — no rounded corners
+  --rayner-rule: 1.5px;           // signature hairline weight
+}
+
+// ---------- DARK (default) ----------
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --c-paper: #14120e;
+  --c-paper-lift: #1c1a15;
+  --c-paper-soft: #23201a;
+
+  --c-ink: #e8e3d4;
+  --c-ink-soft: #beb8a8;
+  --c-ink-mute: #7f7a6d;
+  --c-ink-faint: #4e4a42;
+
+  --c-rule: #2a2720;
+  --c-rule-hard: #e8e3d4;
+
+  --c-accent: #ef5b49;
+  --c-accent-soft: rgba(239, 91, 73, 0.14);
+  --c-accent-line: rgba(239, 91, 73, 0.28);
+
+  --c-code-bg: #0d0c09;
+  --c-code-ink: #e8e3d4;
+  --c-code-kw: #f4a261;
+  --c-code-str: #9fc4a0;
+  --c-code-cm: #7b766a;
+
+  --c-selection: rgba(239, 91, 73, 0.25);
+
+  --bg-grid: rgba(232, 227, 212, 0.035);  // grid paper lines on dark
+}
+
+// ---------- LIGHT ----------
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --c-paper: #f5f2ec;
+  --c-paper-lift: #fbf9f4;
+  --c-paper-soft: #ede8dc;
+
+  --c-ink: #1d1d1b;
+  --c-ink-soft: #3c3a35;
+  --c-ink-mute: #7a7669;
+  --c-ink-faint: #aba69a;
+
+  --c-rule: #d9d3c4;
+  --c-rule-hard: #1d1d1b;
+
+  --c-accent: #c4170c;
+  --c-accent-soft: rgba(196, 23, 12, 0.08);
+  --c-accent-line: rgba(196, 23, 12, 0.25);
+
+  --c-code-bg: #1d1d1b;
+  --c-code-ink: #e8e3d6;
+  --c-code-kw: #f4a261;
+  --c-code-str: #9fc4a0;
+  --c-code-cm: #8a8478;
+
+  --c-selection: rgba(196, 23, 12, 0.18);
+
+  --bg-grid: rgba(29, 29, 27, 0.035);
+}
+
+// Honor OS preference when user hasn't explicitly chosen
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --c-paper: #f5f2ec;
+    --c-paper-lift: #fbf9f4;
+    --c-paper-soft: #ede8dc;
+    --c-ink: #1d1d1b;
+    --c-ink-soft: #3c3a35;
+    --c-ink-mute: #7a7669;
+    --c-ink-faint: #aba69a;
+    --c-rule: #d9d3c4;
+    --c-rule-hard: #1d1d1b;
+    --c-accent: #c4170c;
+    --c-accent-soft: rgba(196, 23, 12, 0.08);
+    --c-accent-line: rgba(196, 23, 12, 0.25);
+    --c-code-bg: #1d1d1b;
+    --c-code-ink: #e8e3d6;
+    --c-selection: rgba(196, 23, 12, 0.18);
+    --bg-grid: rgba(29, 29, 27, 0.035);
+  }
+}
