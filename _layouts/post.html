@@ -9,7 +9,7 @@ layout: default
 <nav class="rayner-crumb" aria-label="Breadcrumb">
   <a href="{{ '/' | relative_url }}">~/essays</a>
   <span class="sep">›</span>
-  <a href="{{ '/categories/' | append: primary_cat | slugify | append: '/' | relative_url }}">{{ primary_cat | downcase | replace: ' ', '-' }}</a>
+  <a href="{{ primary_cat | slugify | prepend: '/categories/' | append: '/' | relative_url }}">{{ primary_cat | downcase | replace: ' ', '-' }}</a>
   <span class="sep">›</span>
   {{ page.slug | default: page.title | slugify }}
 </nav>

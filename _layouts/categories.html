@@ -15,7 +15,7 @@ layout: default
     {% assign cat_posts = cat[1] %}
     <div style="display: grid; grid-template-columns: 220px 1fr auto; gap: 20px; padding: 14px 0; border-bottom: 1px dashed var(--c-rule); align-items: baseline;">
       <div>
-        <a href="{{ '/categories/' | append: cat_name | slugify | append: '/' | relative_url }}"
+        <a href="{{ cat_name | slugify | prepend: '/categories/' | append: '/' | relative_url }}"
            style="border: none; font-family: var(--rayner-mono); font-size: 14px; font-weight: 500; color: var(--c-ink);">
           <span style="color: var(--c-accent);">▸</span> {{ cat_name }}
         </a>

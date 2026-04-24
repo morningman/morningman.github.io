@@ -14,7 +14,7 @@ layout: default
     {% for tag in tags %}
       {% assign tag_name = tag[0] %}
       {% assign tag_posts = tag[1] %}
-      <a href="{{ '/tags/' | append: tag_name | slugify | append: '/' | relative_url }}"
+      <a href="{{ tag_name | slugify | prepend: '/tags/' | append: '/' | relative_url }}"
          style="border: 1px solid var(--c-rule-hard); padding: 5px 10px; color: var(--c-ink); background: var(--c-paper-lift);">
         <span style="color: var(--c-accent);">#</span>{{ tag_name }}
         <span style="color: var(--c-ink-mute); font-size: 11px; margin-left: 4px;">({{ tag_posts | size }})</span>
