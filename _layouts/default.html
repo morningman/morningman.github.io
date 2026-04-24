@@ -73,8 +73,8 @@
       <a class="{% if current == '/' %}active{% endif %}" href="{{ '/' | relative_url }}">~/essays</a>
       <a class="{% if current contains '/archives' %}active{% endif %}" href="{{ '/archives/' | relative_url }}">~/archive</a>
       <a class="{% if current contains '/tags' %}active{% endif %}" href="{{ '/tags/' | relative_url }}">~/tags</a>
+      <a class="{% if current contains '/games' %}active{% endif %}" href="{{ '/games/' | relative_url }}">~/games</a>
       <a class="{% if current contains '/about' %}active{% endif %}" href="{{ '/about/' | relative_url }}">~/about</a>
-      <a href="{{ '/feed.xml' | relative_url }}">~/rss</a>
       <button type="button" class="rayner-theme-toggle" id="rayner-theme-toggle" aria-label="Toggle color theme">
         [ theme ]
       </button>
