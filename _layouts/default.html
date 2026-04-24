@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en' }}" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {%- if page.title -%}
+    <title>{{ page.title }} · {{ site.title }}</title>
+  {%- else -%}
+    <title>{{ site.title }}</title>
+  {%- endif -%}
+
+  <meta name="description" content="{{ page.description | default: site.description }}">
+  {%- if page.tags -%}
+    <meta name="keywords" content="{{ page.tags | join: ', ' }}">
+  {%- endif %}
+
+  {% seo title=false %}
+
+  <link rel="icon" type="image/png" href="{{ '/assets/img/favicons/favicon.ico' | relative_url }}">
+  <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
+
+  {% comment %} No-flash theme bootstrap: read localStorage before paint {% endcomment %}
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('rayner-theme');
+        if (saved === 'light' || saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', saved);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ '/assets/css/rayner.css' | relative_url }}">
+</head>
+
+<body>
+
+<div class="rayner-viewport">
+
+  <header class="rayner-header" role="banner">
+    <div class="rayner-header__top">
+      <div>
+        <h1 class="rayner-header__title">
+          <a href="{{ '/' | relative_url }}" style="border: none; color: inherit;">rayner.notes</a><span class="rayner-header__cursor" aria-hidden="true"></span>
+        </h1>
+        <p class="rayner-header__tagline">A long-running log on data systems — storage engines, open table formats, query execution, and the engineering culture around them. Written while building <a href="https://doris.apache.org">Apache Doris</a>.</p>
+      </div>
+      <div class="rayner-header__profile">
+        <div class="row"><span class="k">author</span><span class="v">Mingyu Chen (Rayner)</span></div>
+        <div class="row"><span class="k">role</span><span class="v">Co-founder / VPE, VeloDB</span></div>
+        <div class="row"><span class="k">chair</span><span class="v accent">Apache Doris PMC</span></div>
+        <div class="row"><span class="k">timezone</span><span class="v">America/Los_Angeles</span></div>
+        <div class="row"><span class="k">updated</span><span class="v">{{ site.time | date: "%Y-%m-%d" }}</span></div>
+      </div>
+    </div>
+
+    <nav class="rayner-header__nav" aria-label="Primary">
+      {%- assign current = page.url -%}
+      <a class="{% if current == '/' %}active{% endif %}" href="{{ '/' | relative_url }}">~/essays</a>
+      <a class="{% if current contains '/archives' %}active{% endif %}" href="{{ '/archives/' | relative_url }}">~/archive</a>
+      <a class="{% if current contains '/tags' %}active{% endif %}" href="{{ '/tags/' | relative_url }}">~/tags</a>
+      <a class="{% if current contains '/about' %}active{% endif %}" href="{{ '/about/' | relative_url }}">~/about</a>
+      <a href="{{ '/feed.xml' | relative_url }}">~/rss</a>
+      <button type="button" class="rayner-theme-toggle" id="rayner-theme-toggle" aria-label="Toggle color theme">
+        [ theme ]
+      </button>
+    </nav>
+  </header>
+
+  <main role="main">
+    {{ content }}
+  </main>
+
+  <footer class="rayner-footer" role="contentinfo">
+    <div class="cell">
+      <b>building</b>
+      <a href="https://doris.apache.org">Apache Doris 4.1</a> — hardening Iceberg V3 write path.
+    </div>
+    <div class="cell">
+      <b>elsewhere</b>
+      {% for link in site.social.links -%}
+        {%- assign host = link | split: '/' | slice: 2, 1 | first -%}
+        {%- if host contains 'github.com' -%}<a href="{{ link }}">github</a>{%- elsif host contains 'linkedin.com' -%} · <a href="{{ link }}">linkedin</a>{%- endif -%}
+      {% endfor %}
+    </div>
+    <div class="cell">
+      <b>doris</b>
+      <a href="https://doris.apache.org/slack">slack</a> · <a href="https://discord.gg/ATXQqX8g8F">discord</a>
+    </div>
+    <div class="cell">
+      <b>contact</b>
+      <a href="mailto:{{ site.social.email }}">{{ site.social.email }}</a>
+    </div>
+  </footer>
+
+  <div class="rayner-footer-meta">
+    <span>&copy; {{ site.time | date: "%Y" }} {{ site.social.name }} · CC BY 4.0</span>
+    <span>Built with Jekyll · schema v3 · no trackers, no newsletter</span>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  var btn = document.getElementById('rayner-theme-toggle');
+  if (!btn) return;
+  function label() {
+    var t = document.documentElement.getAttribute('data-theme') || 'dark';
+    btn.textContent = '[ ' + (t === 'dark' ? 'dark' : 'light') + ' ]';
+  }
+  label();
+  btn.addEventListener('click', function () {
+    var current = document.documentElement.getAttribute('data-theme') || 'dark';
+    var next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('rayner-theme', next); } catch (e) {}
+    label();
+  });
+})();
+</script>
+
+</body>
+</html>

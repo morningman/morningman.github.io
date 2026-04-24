@@ -1,0 +1,30 @@
+---
+layout: default
+permalink: /404.html
+---
+
+<div class="rayner-404">
+  <div class="label">exception :: http / 404 — page not found</div>
+  <div class="glitch">404</div>
+  <h1>No such row in the ledger.</h1>
+
+  <p>The path you followed does not resolve to an essay, tag, or category on this site. It may have been renamed, un-indexed, or pointed at a revision that never landed.</p>
+
+  <div class="terminal">
+    <div><span class="prompt">$</span> curl -sI <span class="err">{{ site.url }}{{ page.url }}</span></div>
+    <div>HTTP/2 <span class="err">404 Not Found</span></div>
+    <div>x-rayner-status: stale-link</div>
+    <div>x-rayner-suggestion: return to /essays/</div>
+    <br>
+    <div><span class="prompt">$</span> ls ~/essays/</div>
+    <div>
+      {% for p in site.posts limit: 5 %}
+        <a href="{{ p.url | relative_url }}" style="color: var(--c-code-str); border: none;">{{ p.date | date: "%Y-%m-%d" }}-{{ p.slug | truncate: 40 }}.md</a><br>
+      {% endfor %}
+    </div>
+  </div>
+
+  <p style="margin-top: 32px;">
+    <a href="{{ '/' | relative_url }}" style="font-family: var(--rayner-mono); font-size: 13px;">← back to the ledger</a>
+  </p>
+</div>

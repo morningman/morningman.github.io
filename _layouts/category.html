@@ -1,0 +1,29 @@
+---
+layout: default
+---
+
+<div class="rayner-ledger-caption">
+  <span class="tick">▸</span>
+  <h2>Category · <span style="color: var(--c-accent);">{{ page.title }}</span></h2>
+  <span class="sub">{{ page.posts | size }} essays in this category</span>
+</div>
+
+<table class="rayner-ledger">
+  <thead>
+    <tr><th>date</th><th>title</th><th style="text-align: right;">stats</th></tr>
+  </thead>
+  <tbody>
+  {% for post in page.posts %}
+    {% assign words = post.content | strip_html | number_of_words %}
+    {% assign minutes = words | divided_by: 238 | at_least: 1 %}
+    <tr>
+      <td class="col-date">{{ post.date | date: "%Y-%m-%d" }}</td>
+      <td class="col-title">
+        <div class="title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></div>
+        {% if post.description %}<div class="dek">{{ post.description | markdownify | strip_html | truncate: 200 }}</div>{% endif %}
+      </td>
+      <td class="col-stats"><b>{{ minutes }} min</b>{{ words }} w</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>

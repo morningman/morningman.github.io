@@ -1,0 +1,173 @@
+// =========================================================
+// Rayner — base reset + typography + grid paper background
+// =========================================================
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  background-color: var(--c-paper);
+  background-image:
+    linear-gradient(
+      to bottom,
+      transparent calc(var(--rayner-baseline) - 1px),
+      var(--bg-grid) calc(var(--rayner-baseline) - 1px),
+      var(--bg-grid) var(--rayner-baseline),
+      transparent var(--rayner-baseline)
+    );
+  background-size: 100% var(--rayner-baseline);
+
+  color: var(--c-ink);
+  font-family: var(--rayner-serif);
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 400;
+  font-feature-settings: "liga", "onum";
+
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  transition: background-color 0.25s ease, color 0.2s ease;
+}
+
+::selection {
+  background: var(--c-selection);
+  color: var(--c-ink);
+}
+
+// Links
+a {
+  color: var(--c-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--c-accent);
+  padding-bottom: 1px;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+a:hover { color: var(--c-accent); }
+a:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 3px;
+  border-bottom-color: transparent;
+}
+
+// Headings default
+h1, h2, h3, h4, h5, h6 {
+  color: var(--c-ink);
+  margin: 0;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+// Paragraphs
+p { margin: 0 0 20px; }
+
+// Lists
+ul, ol { margin: 0 0 20px; padding-left: 24px; }
+li { margin-bottom: 6px; }
+
+// Inline code
+code {
+  font-family: var(--rayner-mono);
+  font-size: 0.85em;
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  padding: 1px 6px;
+  border-radius: var(--rayner-radius);
+}
+
+// Block code (code fence — Rouge output)
+pre {
+  font-family: var(--rayner-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  background: var(--c-code-bg);
+  color: var(--c-code-ink);
+  padding: 20px 24px;
+  margin: 24px 0;
+  border-left: 4px solid var(--c-accent);
+  overflow-x: auto;
+
+  code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
+}
+
+// Blockquote
+blockquote {
+  font-family: var(--rayner-serif);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--c-ink);
+  border-left: 4px solid var(--c-accent);
+  margin: 32px 0;
+  padding: 6px 0 6px 24px;
+
+  p { margin: 0; }
+  p + p { margin-top: 14px; }
+}
+
+// Horizontal rule
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--c-rule);
+  margin: 40px 0;
+}
+
+// Tables
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-family: var(--rayner-serif);
+  font-size: 16px;
+
+  th, td {
+    padding: 10px 16px 10px 0;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--rayner-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--c-ink-mute);
+    text-transform: uppercase;
+    font-weight: 500;
+    border-top: 2px solid var(--c-rule-hard);
+    border-bottom: 1px solid var(--c-rule-hard);
+  }
+  td { border-bottom: 1px dashed var(--c-rule); }
+}
+
+// Images
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// Print
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}

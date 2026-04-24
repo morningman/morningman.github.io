@@ -1,0 +1,27 @@
+---
+layout: default
+---
+
+<div class="rayner-ledger-caption">
+  <span class="tick">▸</span>
+  <h2>Archive · By Year</h2>
+  <span class="sub">all essays · {{ site.posts | size }} rows</span>
+</div>
+
+{% assign posts_by_year = site.posts | group_by_exp: "p", "p.date | date: '%Y'" %}
+{% for year in posts_by_year %}
+  <div class="rayner-year-group">
+    <div style="display: grid; grid-template-columns: 120px 1fr; gap: 20px; padding: 12px 0 10px; border-bottom: 1.5px solid var(--c-rule-hard); margin-bottom: 14px;">
+      <div style="font-family: var(--rayner-mono); font-size: 14px; font-weight: 500; letter-spacing: 0.1em; color: var(--c-accent);">{{ year.name }}</div>
+      <div style="font-family: var(--rayner-serif); font-style: italic; font-size: 14px; color: var(--c-ink-mute);">{{ year.items | size }} essays</div>
+    </div>
+    {% for post in year.items %}
+      <div style="display: grid; grid-template-columns: 120px 1fr; gap: 20px; padding: 10px 0; border-bottom: 1px dashed var(--c-rule); font-family: var(--rayner-serif);">
+        <div style="font-family: var(--rayner-mono); font-size: 12px; color: var(--c-ink-mute); padding-top: 2px;">{{ post.date | date: "%m-%d" }}</div>
+        <div>
+          <a href="{{ post.url | relative_url }}" style="border: none; font-size: 18px; line-height: 1.35;">{{ post.title }}</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endfor %}
