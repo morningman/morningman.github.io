@@ -5,8 +5,8 @@ categories: [Data Engineering, Apache Doris]
 tags: [apache doris, apache parquet, variant, open format, semi-structured, lakehouse]
 description: "How Parquet's Flatbuffer proposal, Lance, and Doris segment v3 each tackle columnar footer explosion when wide tables push metadata from KB into MB."
 image:
-  path: /assets/img/posts/2026-04-23-segment-v3-vs-open-formats-og.png
-  alt: "Side-by-side sketch of Parquet, Lance, and Doris segment v3 footers showing how each shrinks the metadata region."
+  path: /assets/img/posts/2026-04-23-segment-v3-vs-open-formats/fig-1-4-metadata-vs-data-inversion.png
+  alt: "Illustration of the metadata-vs-data inversion in wide columnar files, where footer metadata starts to rival the actual column data."
 ---
 
 Modern columnar formats were designed for tables with dozens of columns. Today's CDP profiles, ML feature stores, and Variant-flattened logs routinely produce files with thousands. When that happens, the assumption that "the footer is small enough to read for free" stops holding — and the cost of reading two columns starts scaling with all C columns. This post walks through what that "metadata explosion" actually looks like, then compares how Parquet's Flatbuffer proposal, Lance, and the new Doris segment v3 each tackle it under very different constraints.
