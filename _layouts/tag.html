@@ -19,8 +19,18 @@ layout: default
     <tr>
       <td class="col-date">{{ post.date | date: "%Y-%m-%d" }}</td>
       <td class="col-title">
-        <div class="title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></div>
-        {% if post.description %}<div class="dek">{{ post.description | markdownify | strip_html | truncate: 200 }}</div>{% endif %}
+        <div class="row-with-thumb">
+          {%- assign img_src = post.image.path | default: post.image -%}
+          {% if img_src %}
+            <a class="thumb" href="{{ post.url | relative_url }}" aria-hidden="true" tabindex="-1">
+              <img src="{{ img_src | relative_url }}" alt="" loading="lazy" decoding="async">
+            </a>
+          {% endif %}
+          <div class="text">
+            <div class="title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></div>
+            {% if post.description %}<div class="dek">{{ post.description | markdownify | strip_html | truncate: 200 }}</div>{% endif %}
+          </div>
+        </div>
       </td>
       <td class="col-stats"><b>{{ minutes }} min</b>{{ words }} w</td>
     </tr>

@@ -38,12 +38,24 @@ layout: default
         <td class="col-id">e{{ id_padded }}</td>
         <td class="col-date">{{ post.date | date: "%Y-%m-%d" }}</td>
         <td class="col-title">
-          <div class="title">
-            <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <div class="row-with-thumb">
+            {%- assign img_src = post.image.path | default: post.image -%}
+            {% if img_src %}
+              <a class="thumb" href="{{ post.url | relative_url }}" aria-hidden="true" tabindex="-1">
+                <img src="{{ img_src | relative_url }}" alt="" loading="lazy" decoding="async">
+              </a>
+            {% else %}
+              <div class="thumb-placeholder">no cover</div>
+            {% endif %}
+            <div class="text">
+              <div class="title">
+                <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+              </div>
+              {% if post.description %}
+                <div class="dek">{{ post.description | markdownify | strip_html | truncate: 260 }}</div>
+              {% endif %}
+            </div>
           </div>
-          {% if post.description %}
-            <div class="dek">{{ post.description | markdownify | strip_html | truncate: 260 }}</div>
-          {% endif %}
         </td>
         <td class="col-tags">
           {% for t in post.tags limit: 4 %}<span>{{ t | replace: ' ', '-' }}</span>{% endfor %}

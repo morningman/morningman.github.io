@@ -69,11 +69,12 @@
   --c-accent-soft: rgba(196, 23, 12, 0.08);
   --c-accent-line: rgba(196, 23, 12, 0.25);
 
-  --c-code-bg: #1d1d1b;
-  --c-code-ink: #e8e3d6;
-  --c-code-kw: #f4a261;
-  --c-code-str: #9fc4a0;
-  --c-code-cm: #8a8478;
+  --c-code-bg: #ebe5d4;          // deeper cream, not black — sits one step below paper-soft
+  --c-code-ink: #262522;         // near-black ink for code body
+  --c-code-kw: #a93f1a;          // warm rust for keywords
+  --c-code-str: #486b3a;         // forest green for strings
+  --c-code-cm: #8a8478;          // mute for comments
+  --c-code-num: #8a4b10;         // darker rust for numbers
 
   --c-selection: rgba(196, 23, 12, 0.18);
 
@@ -96,8 +97,12 @@
     --c-accent: #c4170c;
     --c-accent-soft: rgba(196, 23, 12, 0.08);
     --c-accent-line: rgba(196, 23, 12, 0.25);
-    --c-code-bg: #1d1d1b;
-    --c-code-ink: #e8e3d6;
+    --c-code-bg: #ebe5d4;
+    --c-code-ink: #262522;
+    --c-code-kw: #a93f1a;
+    --c-code-str: #486b3a;
+    --c-code-cm: #8a8478;
+    --c-code-num: #8a4b10;
     --c-selection: rgba(196, 23, 12, 0.18);
     --bg-grid: rgba(29, 29, 27, 0.035);
   }

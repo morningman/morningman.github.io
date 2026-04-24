@@ -230,6 +230,54 @@
     white-space: nowrap;
   }
   .col-title {
+    .row-with-thumb {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .thumb {
+      flex: 0 0 auto;
+      width: 140px;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      border: 1px solid var(--c-rule-hard);
+      background: var(--c-paper-soft);
+      display: block;
+      padding: 0;
+      transition: border-color 0.15s, transform 0.2s ease;
+
+      &:hover {
+        border-color: var(--c-accent);
+        transform: translateY(-1px);
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        margin: 0;
+      }
+    }
+    .thumb-placeholder {
+      flex: 0 0 auto;
+      width: 140px;
+      aspect-ratio: 16 / 9;
+      border: 1px dashed var(--c-rule);
+      background: var(--c-paper-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--rayner-mono);
+      font-size: 9px;
+      color: var(--c-ink-faint);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .text {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
     .title {
       font-family: var(--rayner-serif);
       font-size: 19px;
@@ -302,6 +350,16 @@
     .col-tags { grid-column: 1 / -1; grid-row: 3; width: auto; padding-top: 8px; }
     .col-stats { grid-column: 1 / -1; grid-row: 4; text-align: left; padding-top: 4px; }
     .col-stats b { display: inline; }
+
+    // On mobile, stack thumb above text (full width) rather than side-by-side
+    .col-title .row-with-thumb {
+      flex-direction: column;
+      gap: 12px;
+    }
+    .col-title .thumb,
+    .col-title .thumb-placeholder {
+      width: 100%;
+    }
   }
 }
 
