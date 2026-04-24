@@ -11,6 +11,8 @@ image:
 
 ## Preface
 
+Thanks to [Tom](https://github.com/tomz-alt) for the contribution.
+
 Apache Doris landed native Lance format support in PR [#62182](https://github.com/apache/doris/pull/62182). The integration puts a block of Rust code inside Doris's C++ process.
 
 That's more than "one more supported file format." Once a working Rust component runs inside the BE, the next one costs much less to add.
