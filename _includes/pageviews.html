@@ -1,0 +1,38 @@
+{%- if site.analytics.goatcounter.id -%}
+{%- assign gc = site.analytics.goatcounter.id -%}
+<script data-goatcounter="https://{{ gc }}.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+<script>
+  (function () {
+    var base = 'https://{{ gc }}.goatcounter.com/counter/';
+    var fmt = new Intl.NumberFormat();
+
+    function fill(path, el) {
+      var uri = (path || '/').replace(/\/$/, '');
+      if (!uri) uri = '/';
+      fetch(base + encodeURIComponent(uri) + '.json')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var n = parseInt((d.count || '0').replace(/\D/g, ''), 10) || 0;
+          el.textContent = fmt.format(n);
+        })
+        .catch(function () { el.textContent = '—'; });
+    }
+
+    function run() {
+      var single = document.getElementById('pageviews');
+      if (single) fill(location.pathname, single);
+      var list = document.querySelectorAll('.pageview[data-url]');
+      for (var i = 0; i < list.length; i++) {
+        fill(list[i].getAttribute('data-url'), list[i]);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
+</script>
+{%- endif -%}

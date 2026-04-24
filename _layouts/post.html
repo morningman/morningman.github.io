@@ -29,6 +29,9 @@ layout: default
   {% endif %}
   <div class="row"><span class="k">word_count</span><span class="v">{{ words }}</span></div>
   <div class="row"><span class="k">reading_time</span><span class="v">{{ minutes }} min</span></div>
+  {% if site.analytics.goatcounter.id %}
+    <div class="row"><span class="k">pageviews</span><span class="v"><em id="pageviews">…</em></span></div>
+  {% endif %}
   <div class="row"><span class="k">status</span><span class="v a">stable · cc-by-4.0</span></div>
 </div>
 

@@ -60,7 +60,9 @@ layout: default
         <td class="col-tags">
           {% for t in post.tags limit: 4 %}<span>{{ t | replace: ' ', '-' }}</span>{% endfor %}
         </td>
-        <td class="col-stats"><b>{{ minutes }} min</b>{{ words }} w</td>
+        <td class="col-stats">
+          <b>{{ minutes }} min</b>{{ words }} w{% if site.analytics.goatcounter.id %} · <span class="pageview" data-url="{{ post.url }}">…</span> views{% endif %}
+        </td>
       </tr>
     {% endfor %}
   </tbody>
