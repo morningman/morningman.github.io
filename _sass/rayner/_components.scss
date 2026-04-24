@@ -683,6 +683,14 @@
   line-height: 1.55;
   color: var(--c-code-ink);
 
+  // Force mono on ALL descendants. `<table>` element breaks the font-family
+  // inherit chain in some browsers (Chrome/Safari), causing nested <pre>
+  // inside <td> to fall back to the parent `.rayner-article` serif. Setting
+  // explicitly here plugs the leak.
+  pre, code, table, tbody, tr, td, span {
+    font-family: var(--rayner-mono);
+  }
+
   // Reset any nested pre — no extra border, bg, padding, margin
   pre {
     background: transparent !important;
@@ -691,7 +699,6 @@
     padding: 0;
     border: 0;
     overflow: visible;
-    font-family: inherit;
     font-size: inherit;
     line-height: inherit;
   }
@@ -699,7 +706,6 @@
     background: transparent;
     color: inherit;
     padding: 0;
-    font-family: inherit;
     font-size: inherit;
   }
 
@@ -715,6 +721,8 @@
     tr { border: 0; background: transparent; }
     td { border: 0; background: transparent; padding: 0; vertical-align: top; }
 
+    // Rouge emits td.rouge-gutter.gl and td.rouge-code (NOT td.gutter / td.code)
+    td.rouge-gutter,
     td.gutter,
     td.gl {
       width: 1%;            // shrink-wrap the line number column
@@ -725,6 +733,7 @@
       -webkit-user-select: none;
       border-right: 1px solid var(--c-rule);
     }
+    td.rouge-code,
     td.code {
       padding-left: 14px;
       width: 99%;
