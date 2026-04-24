@@ -1,12 +1,24 @@
 ---
-title: "When a Table Has Thousands of Columns: The Metadata Explosion Problem in Columnar Formats"
+title: "Doris Segment V3 vs Parquet & Lance: Fixing Footer Metadata Explosion"
 date: 2026-04-23 15:00:00 -0700
-categories: [Data Engineering, Storage Format]
-tags: [apache doris, apache parquet, lance, columnar storage, segment v3, variant, lakehouse]
-description: "Wide tables, ML feature stores, and Variant fields all push columnar footers from KB into MB. How Parquet, Lance, and Doris segment v3 each tackle metadata explosion under very different constraints."
+categories: [Data Engineering, Apache Doris]
+tags: [apache doris, apache parquet, variant, open format, semi-structured, lakehouse]
+description: "How Parquet's Flatbuffer proposal, Lance, and Doris segment v3 each tackle columnar footer explosion when wide tables push metadata from KB into MB."
+image:
+  path: /assets/img/posts/2026-04-23-segment-v3-vs-open-formats-og.png
+  alt: "Side-by-side sketch of Parquet, Lance, and Doris segment v3 footers showing how each shrinks the metadata region."
 ---
 
 Modern columnar formats were designed for tables with dozens of columns. Today's CDP profiles, ML feature stores, and Variant-flattened logs routinely produce files with thousands. When that happens, the assumption that "the footer is small enough to read for free" stops holding — and the cost of reading two columns starts scaling with all C columns. This post walks through what that "metadata explosion" actually looks like, then compares how Parquet's Flatbuffer proposal, Lance, and the new Doris segment v3 each tackle it under very different constraints.
+
+## TL;DR
+
+- Wide tables, ML feature stores, and Variant fields push columnar footers from KB into MB, breaking the "footer is free" assumption that columnar formats were built on.
+- Three knobs to fix a fat footer: change its encoding, physically split heavy parts out, and trim redundant fields. Each format picks a different combination.
+- Parquet's Flatbuffer proposal: an in-place engine swap that rides inside an extension slot in the old Thrift footer, so old and new readers stay interoperable across the ecosystem.
+- Lance: 40-byte fixed footer, one protobuf per column, no row groups. Only possible because schema, indexes, and transactions live in upper layers.
+- Doris segment v3: minimally invasive surgery — externalize `ColumnMetaPB` to a CMO region and add a path secondary index for Variant sub-columns, while keeping every existing OLAP capability intact.
+- Same problem, three coordinate systems: who controls the readers, and whether the format is a thin container or a full OLAP segment, decides the design space far more than the technology does.
 
 ## 1. Starting from an Analytical Table
 
@@ -63,7 +75,7 @@ In consumer products, teams aggregate every user tag, attribute, and recent acti
 Feature tables routinely store a 768- or 1024-dimensional embedding as that many columns. Add handcrafted features, statistical features, and rolling-window features, and the count crosses a thousand. Multimodal scenarios with image, text, and audio embeddings push it further. Lance was designed for exactly this shape.
 
 **Scenario C: Semi-structured logs / event streams / API payloads.**
-Application logs, telemetry, and JSON pulled from third-party APIs have flexible schemas, lots of fields, and high sparsity. Storing the JSON as one string column makes querying painful. Modern columnar engines (ClickHouse Object/JSON, Doris Variant, Snowflake VARIANT, DuckDB STRUCT) split JSON into sub-columns by path automatically. A single complex event becomes hundreds or thousands of sub-columns. To the storage engine, sub-columns look almost identical to user-defined columns.
+Application logs, telemetry, and JSON pulled from third-party APIs have flexible schemas, lots of fields, and high sparsity. Storing the JSON as one string column makes querying painful. Modern columnar engines (ClickHouse Object/JSON, [Doris Variant]({% post_url 2026-04-13-beyond-json-variant-data-types %}), Snowflake VARIANT, DuckDB STRUCT) split JSON into sub-columns by path automatically. A single complex event becomes hundreds or thousands of sub-columns. To the storage engine, sub-columns look almost identical to user-defined columns.
 
 Put these together and the conclusion is plain: thousand-column tables are no longer a fringe case but a mainstream shape that emerged in the last few years. The "footer is small" assumption from 1.2 has not kept up.
 
@@ -191,7 +203,7 @@ Cost: many of these fields exist for historical reasons. Removing them breaks ba
 
 A, B, and C all stack in theory. Which knobs each project picks, and how far it turns them, isn't a pure technical decision. Constraints matter more than technical detail. Two of them in particular:
 
-1. **Can you control all the readers?** When reader implementations sit in dozens of ecosystem projects (Spark, Trino, DuckDB, Polars, Iceberg, Delta, ClickHouse, each with its own Parquet reader), any change to the binary layout is meaningless without a network-wide upgrade. Under that constraint, sweeping physical splits are nearly impossible. Encoding-layer upgrades plus compatibility piggybacking become the realistic path. When reader and writer both belong to one engine, the layout can evolve freely with version numbers and the design space opens up.
+1. **Can you control all the readers?** When reader implementations sit in dozens of ecosystem projects (Spark, Trino, DuckDB, Polars, Iceberg, Delta, ClickHouse, each with its own Parquet reader), any change to the binary layout is meaningless without a network-wide upgrade. The same dynamic shapes other open-format evolution debates — see [how hard it is to add an index to Iceberg]({% post_url 2026-04-03-how-hard-is-it-to-add-an-index-to-an-open-format %}) for a parallel case where the ecosystem, not the technology, sets the ceiling. Under that constraint, sweeping physical splits are nearly impossible. Encoding-layer upgrades plus compatibility piggybacking become the realistic path. When reader and writer both belong to one engine, the layout can evolve freely with version numbers and the design space opens up.
 2. **Is the format a "general container" or an "OLAP segment"?** A general columnar container (Parquet, Lance) carries needs from many upper-layer engines. Schema evolution, secondary indexes, and transactions get pushed up the stack on purpose. This kind of format has the motivation to keep its footer thin and regular. An OLAP engine's own segment (Doris segment, ClickHouse part) treats schema evolution, indexes, MOW (Merge-on-Write), Cluster Key as first-class. Its footer carries that baggage, and evolution can only be minimally invasive surgery.
 
 Parquet, Lance, and Doris segment sit at different positions across these two axes. Even when all three solve the same problem, the knob combinations end up looking nothing alike. With these constraints in mind, many "why didn't they do it that way" questions about the three solutions ahead trace back to the constraints.
