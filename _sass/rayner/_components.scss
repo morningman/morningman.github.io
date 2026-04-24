@@ -666,24 +666,89 @@
 }
 
 // ------- Rouge syntax highlighting (Jekyll code fences) -------
+//
+// Rouge with `block.line_numbers: true` emits nested tables + pres:
+//   .highlight > table.rouge-table > tr > [td.gutter > pre.lineno, td.code > pre > code]
+// The container `.highlight` carries the visual box + accent border.
+// All nested <pre> and <td> must be reset to no bg / no border / no padding.
 .highlight {
+  position: relative;
+  background: var(--c-code-bg);
+  border-left: 4px solid var(--c-accent);
+  padding: 14px 16px;
   margin: 24px 0;
-  background: var(--c-code-bg) !important;
+  overflow-x: auto;
+  font-family: var(--rayner-mono);
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--c-code-ink);
 
-  pre, code {
+  // Reset any nested pre — no extra border, bg, padding, margin
+  pre {
     background: transparent !important;
-    color: var(--c-code-ink) !important;
+    color: inherit !important;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+  code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
   }
 
+  // Rouge table layout (line-numbered blocks)
+  table.rouge-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 0;
+    margin: 0;
+    background: transparent;
+    font-size: inherit;
+
+    tr { border: 0; background: transparent; }
+    td { border: 0; background: transparent; padding: 0; vertical-align: top; }
+
+    td.gutter,
+    td.gl {
+      width: 1%;            // shrink-wrap the line number column
+      padding-right: 14px;
+      text-align: right;
+      color: var(--c-ink-faint);
+      user-select: none;
+      -webkit-user-select: none;
+      border-right: 1px solid var(--c-rule);
+    }
+    td.code {
+      padding-left: 14px;
+      width: 99%;
+    }
+  }
+
+  .lineno { color: var(--c-ink-faint); user-select: none; }
+
   // Rouge token classes
-  .c, .c1, .cm, .cs { color: var(--c-code-cm); font-style: italic; }
-  .k, .kd, .kr, .kt, .kn { color: var(--c-code-kw); }
+  .c, .c1, .cm, .cs, .cp, .cpf { color: var(--c-code-cm); font-style: italic; }
+  .k, .kd, .kr, .kt, .kn, .kc { color: var(--c-code-kw); }
   .s, .s1, .s2, .sb, .sc, .sd, .se, .sh, .si, .sx, .ss { color: var(--c-code-str); }
   .n, .nb, .nc, .no, .nd, .ni, .nf, .nn, .nt, .nv, .nx { color: var(--c-code-ink); }
-  .mi, .mf, .mh, .mo { color: var(--c-code-kw); }
+  .mi, .mf, .mh, .mo, .il { color: var(--c-code-kw); }
   .o, .ow { color: var(--c-accent); }
-  .p { color: var(--c-ink-mute); }
-  .lineno { color: var(--c-ink-faint); margin-right: 12px; user-select: none; }
+  .p, .pi { color: var(--c-ink-mute); }
+}
+
+// Outer wrapper `<div class="language-xxx highlighter-rouge">` — make it
+// behave as a clean block container so surrounding global `<div>` styles
+// don't interfere.
+.language-plaintext.highlighter-rouge,
+div[class*="language-"].highlighter-rouge {
+  margin: 0; padding: 0; background: transparent; border: 0;
 }
 
 // ------- 404 + page layouts default container -------
