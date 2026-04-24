@@ -4,9 +4,6 @@ date: 2026-04-03 14:00:00 -0700
 categories: [Data Engineering, Apache Iceberg]
 tags: [apache iceberg, indexing, open format, lakehouse, ai, vector retrieval, full text search]
 description: "Adding a secondary index to Apache Iceberg isn't a file-layout problem — it's an ecosystem problem. A walkthrough of the design tradeoffs the Iceberg community is navigating."
-image:
-  path: /assets/img/posts/2026-04-03-how-hard-is-it-to-add-an-index-to-an-open-format-og.jpg
-  alt: "How hard is it to add an index to an open format — lessons from the Apache Iceberg community."
 ---
 
 > The [Apache Iceberg](https://iceberg.apache.org/) community is discussing "secondary indexes." This topic is far more complex than it appears on the surface. Adding an index is not a simple engineering problem of "how to store an index file." It requires deep thinking about how an open format should design an entire indexing ecosystem.
