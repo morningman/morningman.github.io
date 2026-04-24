@@ -619,3 +619,11 @@ Each format still has room to learn from the other two. Engineering moves that c
 - Lance from Doris: a path secondary index for semi-structured data. Today Lance relies on upper-layer flattening. If Lance ends up carrying more native semi-structured workloads, a capability like `variant_meta_keys` would have value.
 
 Lay all these moves together and a shared direction emerges: the next round of columnar format evolution has shifted focus from "store data more tightly" to "let metadata be read on demand."
+
+## Try Segment V3
+
+Segment v3 ships with Apache Doris 4.1 and is the default format for new tables. If the scenarios in this post — wide CDP tables, Variant-heavy event logs, ML feature stores — match your workload, the fastest way to feel the difference is to open a v2 segment and a v3 segment side by side on a 3000-column table and watch the startup latency collapse.
+
+- **Read the format spec**: [Apache Doris 4.x · Storage Format](https://doris.apache.org/docs/4.x/table-design/storage-format) — the CMO region layout, Variant path index, and V2 fallback knobs are all documented here.
+- **Download Doris 4.1**: [doris.apache.org/download](https://doris.apache.org/download) — pick the 4.1 release; v3 is on by default for new tables, and v2 stays available for narrow-table workloads via `storage_format`.
+- **Questions or feedback**: the Apache Doris [Slack](https://apachedoriscommunity.slack.com/) and [GitHub Discussions](https://github.com/apache/doris/discussions) are where the people who built segment v3 hang out. If you hit a footer-size edge case we haven't seen, we want to hear about it.
