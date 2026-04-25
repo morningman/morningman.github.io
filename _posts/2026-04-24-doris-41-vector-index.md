@@ -1,5 +1,5 @@
 ---
-title: "Native Vector Search in Apache Doris 4.1: 900 QPS at 97% Recall"
+title: "How We Built Production Vector Search Inside an Analytical Database: 900 QPS at 97% Recall"
 date: 2026-04-24 10:00:00 -0700
 categories: [Data Engineering, Apache Doris]
 tags: [apache doris, vector retrieval, hybrid search, indexing, ai]
@@ -248,7 +248,7 @@ SELECT
   price,
   l2_distance(embedding, [0.12, 0.08, ..., 0.31]) AS distance
 FROM products
-WHERE category = '运动鞋'
+WHERE category = 'sneakers'
   AND in_stock = TRUE
   AND price BETWEEN 50 AND 200
 ORDER BY l2_distance(embedding, [0.12, 0.08, ..., 0.31])
@@ -395,21 +395,6 @@ These boundaries are not static. As the optimizer matures and additional index t
 
 ## 9. Getting Started and Resources
 
-### Quick Start
+- [Apache Doris 4.1 download](https://doris.apache.org/download)
+- [Vector index documentation](https://doris.apache.org/docs/4.x/ai/vector-search/overview)
 
-```bash
-# Launch Apache Doris 4.1 via Docker
-# TODO: insert the official Docker image launch command (placeholder)
-docker run -p 8030:8030 -p 9030:9030 <apache-doris-4.1-image>
-```
-
-### Downloads and Documentation
-
-- Apache Doris 4.1 download: TODO official download page link
-- Vector index documentation: TODO official docs "Vector Index" chapter link
-- End-to-end example repository: TODO GitHub example repo link (table creation, ingestion, retrieval, and hybrid queries)
-
-### Community and Benchmark
-
-- Community entry points: TODO GitHub Discussions / Slack / mailing list link
-- Benchmark reproduction: TODO VectorDBBench configuration and dataset link
