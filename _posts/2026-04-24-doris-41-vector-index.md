@@ -1,6 +1,6 @@
 ---
 title: "Native Vector Search in Apache Doris 4.1: 900 QPS at 97% Recall"
-date: 2026-04-24 19:00:00 -0700
+date: 2026-04-24 10:00:00 -0700
 categories: [Data Engineering, Apache Doris]
 tags: [apache doris, vector retrieval, hybrid search, indexing, ai]
 description: "Apache Doris 4.1 adds native vector search: IVF and disk-tiered SPANN indexes, PQ quantization, and hybrid BM25+vector queries planned in a single SQL."
