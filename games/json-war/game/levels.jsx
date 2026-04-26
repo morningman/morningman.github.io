@@ -262,9 +262,9 @@ function BattleScene() {
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div style={{
-      height:'100svh', maxWidth:430, margin:'0 auto',
+      minHeight:'100svh', maxWidth:430, margin:'0 auto',
       display:'flex', flexDirection:'column',
-      position:'relative', overflow:'hidden',
+      position:'relative', overflowX:'hidden',
       fontFamily:'Fredoka,sans-serif', background:'#0a0818',
     }}>
       <Starfield />
@@ -282,10 +282,12 @@ function BattleScene() {
         <BossHPBar hp={bossHp} maxHp={lvl.maxHp} bossName={lvl.bossName} />
       </div>
 
-      {/* Boss area */}
+      {/* Boss area — shrinks when hangar panel is open so the button bar stays on screen */}
       <div style={{
         position:'relative', zIndex:10, flexShrink:0,
-        height:'37%', display:'flex', flexDirection:'column',
+        height: inHangar ? '26%' : '37%',
+        transition:'height 0.4s cubic-bezier(0.4,0,0.2,1)',
+        display:'flex', flexDirection:'column',
         alignItems:'center', justifyContent:'center',
       }}>
         {/* Boss SVG with effects */}
@@ -486,11 +488,11 @@ function BattleScene() {
       {/* Button bar */}
       <div style={{
         position:'relative', zIndex:20, flexShrink:0,
-        padding:'13px 20px 18px',
+        padding:'10px 20px max(14px, env(safe-area-inset-bottom))',
         background:'rgba(8,6,20,0.95)',
         borderTop:'2px solid #1a1408',
         display:'flex', flexDirection:'column', justifyContent:'center', alignItems:'center',
-        gap:10,
+        gap:8,
       }}>
         {btnConfig ? (
           <CartoonBtn
